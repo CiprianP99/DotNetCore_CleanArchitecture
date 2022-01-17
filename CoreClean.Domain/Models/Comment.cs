@@ -15,10 +15,10 @@ namespace CoreClean.Domain.Models
        
         [ForeignKey("Photo")]
         public Guid PhotoId { get; set; }
-        public Photo Photo { get; set; }
+        public virtual Photo Photo { get; set; }
 
         [ForeignKey("User")]
         public Guid UserId { get; set; }
-        public User User { get; set; }
+        public virtual User User { get; set; }
     }
 }

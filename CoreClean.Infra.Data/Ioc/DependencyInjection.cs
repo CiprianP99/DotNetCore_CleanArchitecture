@@ -14,6 +14,8 @@ namespace CoreClean.Infra.Data.Ioc
         public static IServiceCollection AddRepository(this IServiceCollection services)
         {
             services.AddTransient<IPhotoRepository, PhotoRepository>();
+            services.AddTransient<ICategoryRepository, CategoryRepository>();
+            services.AddTransient<ICommentRepository, CommentRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             return services;
         }

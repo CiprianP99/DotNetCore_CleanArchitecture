@@ -15,15 +15,5 @@ namespace CoreClean.Infra.Data.Repositories
                 : base(projectDbContext)
         {
         }
-
-        //public IEnumerable<Photo> GetMostLikedPhoto(int likes)
-        //{
-        //    //return ProjectDbContext.Photos.OrderByDescending(c => c.UserLikes).Take(likes).ToList();
-        //}
-
-        //public PhotoContext PhotoContext
-        //{
-        //    get { return ProjectDbContext as PhotoContext; }
-        //}
     }
 }

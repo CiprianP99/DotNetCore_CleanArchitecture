@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CoreClean.Domain.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,6 +18,12 @@ namespace CoreClean.Web.ViewModels
         [Required]
         public string Title { get; set; }
         public string Description { get; set; }
+
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; }
+        //public IEnumerable<SelectListItem> Categories { get; set; }
+
+        public SelectList catlist { get; set; }
 
         [Required]
         [Display(Name = "File")]

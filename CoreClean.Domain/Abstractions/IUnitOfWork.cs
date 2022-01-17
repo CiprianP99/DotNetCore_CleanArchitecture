@@ -9,6 +9,8 @@ namespace CoreClean.Domain.Abstractions
     public interface IUnitOfWork
     {
         IPhotoRepository Photos { get; }
+        ICategoryRepository Categories { get; }
+        ICommentRepository Comments { get; }
         int Complete();
     }
 }

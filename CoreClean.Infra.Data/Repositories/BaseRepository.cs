@@ -11,7 +11,7 @@ namespace CoreClean.Infra.Data.Repositories
 {
     public abstract class BaseRepository<T>: IBaseRepository<T> where T : class
     {
-        protected readonly ProjectDbContext _projectDbContext;
+        protected ProjectDbContext _projectDbContext;
 
         public BaseRepository(ProjectDbContext projectDbContext)
         {
@@ -36,7 +36,7 @@ namespace CoreClean.Infra.Data.Repositories
            //_projectDbContext.SaveChanges();
         }
 
-        public T Get(int id)
+        public T Get(Guid id)
         {
             return _projectDbContext.Set<T>().Find(id);
         }

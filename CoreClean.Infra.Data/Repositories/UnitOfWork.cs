@@ -10,14 +10,18 @@ namespace CoreClean.Infra.Data.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly ProjectDbContext _projectDbContext;
+        private ProjectDbContext _projectDbContext;
 
         public IPhotoRepository Photos { get; private set; }
+        public ICategoryRepository Categories { get; private set; }
+        public ICommentRepository Comments { get; private set; }
 
         public UnitOfWork(ProjectDbContext projectDbContext)
         {
             _projectDbContext = projectDbContext;
             Photos = new PhotoRepository(_projectDbContext);
+            Categories = new CategoryRepository(_projectDbContext);
+            Comments = new CommentRepository(_projectDbContext);
         }
 
         public int Complete()

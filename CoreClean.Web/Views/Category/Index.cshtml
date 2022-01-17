@@ -1,0 +1,35 @@
+﻿@model IEnumerable<CoreClean.Domain.Models.Category>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<p>
+    <a asp-action="Create"><img class="catButton" src="~/images/plus.png"/></a>
+</p>
+<table class="table" style=" border-radius: 20px; background-color: #BDBDBD;">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td style="text-align:right">
+                <a asp-action="Edit" asp-route-id="@item.Id"><img class="catButton" src="~/images/pencil.png"/></a> |
+                @*<a asp-action="Details" asp-route-id="@item.Id"><img class="catButton" src="~/images/pencil.png" /></a> |*@
+                <a asp-action="Delete" asp-route-id="@item.Id"><img class="catButton" src="~/images/remove.png" /></a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

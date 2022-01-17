@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 using CoreClean.Infra.Data.Context;
 using CoreClean.Domain.Models;
 using CoreClean.Infra.Data.Ioc;
+using CoreClean.Web.Helpers;
+using CoreClean.Application.Interfaces;
+using CoreClean.Application.Services;
 
 namespace CoreClean.Web
 {
@@ -32,11 +35,15 @@ namespace CoreClean.Web
             services.AddDbContext<ProjectDbContext>(options =>
             {
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("ProjectConnection"));
+                    Configuration.GetConnectionString("ProjectConnection")).UseLazyLoadingProxies();
+
             });
 
             services.AddRepository();
-
+            services.AddAutoMapper(typeof(MappingProfiles));
+            services.Add(new ServiceDescriptor(typeof(IPhotoService), typeof(PhotoService), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(ICategoryService), typeof(CategoryService), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(ICommentService), typeof(CommentService), ServiceLifetime.Transient));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)

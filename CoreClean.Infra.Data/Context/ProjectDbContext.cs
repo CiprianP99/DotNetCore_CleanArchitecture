@@ -23,7 +23,6 @@ namespace CoreClean.Infra.Data.Context
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Follow> Follows { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -41,6 +40,10 @@ namespace CoreClean.Infra.Data.Context
                 .WithMany(u => u.Followee)
                 .HasForeignKey(u => u.FolloweeId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            //builder.Entity<Category>()
+            //    .Property(f => f.Id)
+            //    .ValueGeneratedOnAdd();
         }
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
