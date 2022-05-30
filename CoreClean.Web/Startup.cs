@@ -17,6 +17,7 @@ using CoreClean.Infra.Data.Ioc;
 using CoreClean.Web.Helpers;
 using CoreClean.Application.Interfaces;
 using CoreClean.Application.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace CoreClean.Web
 {
@@ -39,16 +40,20 @@ namespace CoreClean.Web
 
             });
 
+            
             services.AddRepository();
             services.AddAutoMapper(typeof(MappingProfiles));
             services.Add(new ServiceDescriptor(typeof(IPhotoService), typeof(PhotoService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(ICategoryService), typeof(CategoryService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(ICommentService), typeof(CommentService), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(IUserService), typeof(UserService), ServiceLifetime.Transient));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ProjectDbContext>();
             services.AddControllersWithViews();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

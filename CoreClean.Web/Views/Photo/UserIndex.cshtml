@@ -1,0 +1,29 @@
+﻿@model IEnumerable<CoreClean.Domain.Models.Photo>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<p>
+    <a asp-action="Create"><img src="~/images/add-image.png" style="width:5%;" /></a>
+</p>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+
+        <div class="col-md-4 img__wrap my-1">
+            <figure class="hover-box bg-dark text-white">
+                <img src="~/upload/photos/@Html.DisplayFor(modelItem => item.Name)" alt="hover-box-first" class="w-100" />
+                <figcaption class="text-right">
+                    <h3 class="bg-info p-1 mb-1">@item.Title</h3>
+                    <h4><small class="text-muted">by</small> @item.User.FirstName</h4>
+                </figcaption>
+                <a asp-action="Details" asp-route-id="@item.Id"></a>
+            </figure>
+        </div>
+    }
+</div>
+

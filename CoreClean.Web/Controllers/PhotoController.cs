@@ -26,15 +26,19 @@ namespace CoreClean.Web.Controllers
         private readonly IPhotoService _photoService;
         private readonly ICategoryService _categoryService;
         private readonly ICommentService _commentService;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
         //private readonly UserManager<User> _userManager;
 
-        public PhotoController(IWebHostEnvironment hostEnvironment, IPhotoService photoService, ICategoryService categoryService, ICommentService commentService, IMapper mapper)
+        public PhotoController(IWebHostEnvironment hostEnvironment, IPhotoService photoService,
+            ICategoryService categoryService, ICommentService commentService, IMapper mapper,
+            IUserService userService)
         {
             _hostEnvironment = hostEnvironment;
             _photoService = photoService;
             _categoryService = categoryService;
             _commentService = commentService;
+            _userService = userService;
             _mapper = mapper;
         }
         // GET: PhotoController
@@ -44,15 +48,23 @@ namespace CoreClean.Web.Controllers
             return View(photos);
         }
 
+        // GET: PhotoController/UserIndex
+        public ActionResult UserIndex()
+        {
+            var userID = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var photos = _photoService.GetPhotoByUserId(userID);
+            return View(photos);
+        }
+
         // GET: PhotoController/Details/5
         public ActionResult Details(Guid id)
         {
-            if(id == Guid.Empty)
+            if (id == Guid.Empty)
             {
                 return NotFound();
             }
             var photo = _photoService.Get(id);
-            if(photo == null)
+            if (photo == null)
             {
                 return NotFound();
             }
@@ -63,10 +75,10 @@ namespace CoreClean.Web.Controllers
         public ActionResult Create()
         {
             PhotoViewModel pVM = new PhotoViewModel();
-           
+
             var catList = _categoryService.GetAll().ToList();
             //ViewBag.Categories = new SelectList(catList);
-            pVM.catlist = new SelectList(catList,"Id","Name");
+            pVM.catlist = new SelectList(catList, "Id", "Name");
             return View(pVM);
         }
 
@@ -86,11 +98,6 @@ namespace CoreClean.Web.Controllers
             return filePath;
         }
 
-        //private void PopulateCategoryDropDownList(int? selectedCategory)
-        //{
-        //    var platforms = from
-        //}
-
         // POST: PhotoController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -102,7 +109,6 @@ namespace CoreClean.Web.Controllers
             }
             try
             {
-                
                 var ph = _mapper.Map<Photo>(photo);
                 _photoService.AddPhoto(ph);
                 ph.UserId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -112,11 +118,11 @@ namespace CoreClean.Web.Controllers
                 var img = Image.FromFile(fPath);
                 var height = img.Height.ToString();
                 var width = img.Width.ToString();
-                var resolution = width +"x"+ height;
+                var resolution = width + "x" + height;
                 ph.Resolution = resolution;
                 ph.Format = Path.GetExtension(fPath).ToLower();
                 _photoService.Save();
-               
+
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -137,6 +143,38 @@ namespace CoreClean.Web.Controllers
             _commentService.AddComment(comment);
             _commentService.Save();
             return RedirectToAction("Details", "Photo", new { Id = comment.PhotoId });
+        }
+
+        [HttpPost]
+        public ActionResult LikePhoto([FromForm] Photo photo)
+        {
+            photo = _photoService.Find(x => x.Id == photo.Id).FirstOrDefault();
+            var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            User user = _userService.Get(userId);
+
+            if (User.Identity.IsAuthenticated)
+            {
+                photo.UserLikes.Add(user);
+                _photoService.Save();
+                ViewBag.flag = 1;
+            }
+            return RedirectToAction("Details", "Photo", new { Id = photo.Id });
+        }
+
+        [HttpPost]
+        public ActionResult UnLikePhoto([FromForm]Photo photo)
+        {
+            photo = _photoService.Find(x => x.Id == photo.Id).FirstOrDefault();
+            var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            User user = _userService.Get(userId);
+
+            if(User.Identity.IsAuthenticated)
+            {
+                photo.UserLikes.Remove(user);
+                _photoService.Save();
+
+            }
+            return RedirectToAction("Details", "Photo", new { Id = photo.Id });
         }
 
         // GET: PhotoController/Edit/5
