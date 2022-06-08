@@ -22,8 +22,4 @@
     <ProjectReference Include="..\CoreClean.Domain\CoreClean.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>

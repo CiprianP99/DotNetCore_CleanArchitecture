@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CoreClean.Infra.Data.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20220113200655_third")]
-    partial class third
+    [Migration("20220606171045_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -48,7 +48,12 @@ namespace CoreClean.Infra.Data.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Albums");
                 });
@@ -454,6 +459,17 @@ namespace CoreClean.Infra.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CoreClean.Domain.Models.Album", b =>
+                {
+                    b.HasOne("CoreClean.Domain.Models.User", "User")
+                        .WithMany("Albums")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CoreClean.Domain.Models.Comment", b =>
                 {
                     b.HasOne("CoreClean.Domain.Models.Photo", "Photo")
@@ -634,6 +650,8 @@ namespace CoreClean.Infra.Data.Migrations
 
             modelBuilder.Entity("CoreClean.Domain.Models.User", b =>
                 {
+                    b.Navigation("Albums");
+
                     b.Navigation("Comments");
 
                     b.Navigation("Followee");

@@ -6,91 +6,169 @@
 
 
 
-<p>
-    <a asp-action="Create"><img src="~/images/add-image.png" style="width:5%;"/></a>
-</p>
+
 
 <div class="row">
     @foreach (var item in Model)
     {
 
-        @*<div class="col-md-4 img__wrap" style="margin: 10px 0 10px 0;">
-            @Html.Hidden("Id", item.Id)
-            <a asp-action="Details" asp-route-id="@item.Id"><img class="abcds" src="~/upload//photos//@Html.DisplayFor(modelItem => item.Name)" style="width:100%" /></a>
-            <div class="img__description_layer">
-                <p class="img__description">@Html.DisplayFor(modelItem => item.User.UserName)</p>
-            </div>
 
-        </div>*@
-    <div class="col-md-4 img__wrap my-1" >
-        <figure class="hover-box bg-dark text-white">
-            <img src="~/upload/photos/@Html.DisplayFor(modelItem => item.Name)" alt="hover-box-first" class="w-100" />
-            <figcaption class="text-right">
-                <h3 class="bg-info p-1 mb-1">@item.Title</h3>
-                <h4><small class="text-muted">by</small> @item.User.FirstName</h4>
-            </figcaption>
-            <a asp-action="Details" asp-route-id="@item.Id"></a>
-        </figure>
+        <div class="col-md-4 img__wrap my-1">
+            <figure class="hover-box bg-dark text-white">
+                <img src="~/upload/photos/@Html.DisplayFor(modelItem => item.Name)" alt="hover-box-first" class="w-100" />
+                <figcaption class="text-right">
+                    <h3 class="bg-info p-1 mb-1">@item.Title</h3>
+                    <h4><small class="text-muted">by</small> @item.User.FirstName</h4>
+                </figcaption>
+                <a asp-action="Details" asp-route-id="@item.Id"></a>
+            </figure>
         </div>
-        }
-    </div>
-@*<table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Format)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Name)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Resolution)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Title)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Description)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Category)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.User)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-    @foreach (var item in Model) {
-            <tr>
-               <td>
-                    @Html.DisplayFor(modelItem => item.Format)
-                </td>
-                <td>
-                  <img src="~/upload//photos//@Html.DisplayFor(modelItem => item.Name)" style="width:10%" />
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Resolution)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Category.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.User.Id)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
     }
-        </tbody>
-    </table>*@
+</div>
+
+@*<div class="grid">
+   <div class="grid-resizer"></div>
+    @foreach (var item in Model)
+    {
+
+       
+            <div class="grid-item"><img src="~/upload/photos/@Html.DisplayFor(modelItem => item.Name)" alt="hover-box-first" class="w-100" /></div>
+           
+
+    }
+</div>*@
+
+
+     <script type="text/javascript"></script>
+    <script src="~/lib/masonry/masonry.js"></script>
+    <script type='text/javascript'>
+    $(window).load(function(){
+  var $container = $('.grid').masonry();
+  // layout Masonry again after all images have loaded
+  $container.imagesLoaded( function() {
+    $container.masonry();
+  });
+});
+
+//function resizeGridItem(item){
+//  grid = document.getElementsByClassName("grid")[0];
+//  rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
+//  rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-row-gap'));
+//  rowSpan = Math.ceil((item.querySelector('.content').getBoundingClientRect().height+rowGap)/(rowHeight+rowGap));
+//    item.style.gridRowEnd = "span "+rowSpan;
+//}
+
+//function resizeAllGridItems(){
+//  allItems = document.getElementsByClassName("item");
+//  for(x=0;x<allItems.length;x++){
+//    resizeGridItem(allItems[x]);
+//  }
+//}
+
+//function resizeInstance(instance){
+//	item = instance.elements[0];
+//  resizeGridItem(item);
+//}
+//var $grid = $('.grid').imagesLoaded( function() {
+//  // init Masonry after all images have loaded
+//  $grid.masonry({
+//    // options...
+//  });
+//});
+
+//window.onload = resizeAllGridItems();
+//window.addEventListener("resize", resizeAllGridItems);
+
+//allItems = document.getElementsByClassName("item");
+//for(x=0;x<allItems.length;x++){
+//  imagesLoaded( allItems[x], resizeInstance);
+//}
+    </script>
+
+    }
+<style>
+    /* ---- grid ---- */
+
+.grid {
+  background: #DDD;
+}
+
+/* clear fix */
+.grid:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+    .grid-sizer,
+.grid-item {
+  width: 33.333%;
+}
+
+.grid-item {
+  float: left;
+}
+
+.grid-item img {
+  display: block;
+  width: 100%;
+}
+/*  .grid {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+  grid-auto-rows: 20px;
+ 
+}
+.item {
+  background-color: #ffffff;
+}
+
+
+
+
+
+
+
+
+
+
+
+       */ 
+  /* .grid {
+            background: #EEE;
+            max-width: 1200px;
+        }
+       .grid:after {
+            content: '';
+            display: block;
+            clear: both;
+       }
+        .grid-sizer,
+        .grid-item {
+            width: 20%;
+        }
+        .grid-item {
+            height: 120px;
+            float: left;
+            background: #c7f6f5;
+            border: 2px solid #333;
+            border-color: hsla(0, 0%, 0%, 0.5);
+            border-radius: 5px;
+        }
+        .grid-item--width2 {
+            width: 40%;
+        }
+        .grid-item--width3 {
+            width: 60%;
+        }
+        .grid-item--height2 {
+            height: 200px;
+        }
+        .grid-item--height3 {
+            height: 260px;
+        }
+        .grid-item--height4 {
+            height: 360px;
+        }*/
+</style>

@@ -20,6 +20,7 @@ namespace CoreClean.Domain.Models
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<Photo> Photos { get; set; }
         public virtual ICollection<Photo> PhotoLikes { get; set; }
+        public virtual ICollection<Album> Albums { get; set; } 
 
         public virtual ICollection<Follow> Follower { get; set; }
         public virtual ICollection<Follow> Followee { get; set; }

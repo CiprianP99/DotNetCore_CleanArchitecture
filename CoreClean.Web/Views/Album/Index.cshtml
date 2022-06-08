@@ -1,0 +1,33 @@
+﻿@model IEnumerable<CoreClean.Domain.Models.Album>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Your albums</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 d-flex justify-content-center">
+            <div class="card cardModel" style="width: 18rem;">
+                <img class="card-img-top" src="~/upload/photos/@Html.DisplayFor(modelItem => item.Photos.ElementAt(0).Name)" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayFor(modelItem => item.Name)</h5>
+                    <p class="card-text">@Html.DisplayFor(modelItem => item.Description)</p>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .cardModel {
+        border: 3px solid #AE4CCF;
+    }
+</style>

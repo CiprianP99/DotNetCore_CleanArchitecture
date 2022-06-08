@@ -1,0 +1,114 @@
+﻿@model CoreClean.Web.ViewModels.AlbumCreationViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Album</h4>
+<hr />
+<div class="row">
+    <div class="col-sm-10 mx-auto">
+        <div class="card regCard">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            @* <div>
+
+            <div class="row">
+            @foreach (var photo in @ViewBag.PhotosId)
+            {
+            <div class="col-md-3">
+            <div class="custom-control custom-checkbox image-checkbox">
+            <input class="custom-control-input" type="checkbox" value="@photo.Id" id="@photo.Id">
+            <label class="custom-control-input" for="@photo.Id"><img src="~/upload/photos/@photo.Name" class="img-fluid" /></label>
+            </div>
+            </div>
+            }
+
+            </div>
+            </div>*@
+            <div class="row">
+                @foreach(var photo in @ViewBag.PhotosId)
+                {
+                <div class="col-md-3 text-center">
+                    <label class="image-checkbox" title="England">
+                        <img src="~/upload/photos/@photo.Name" class="img-fluid" />
+                        <input type="checkbox" name="Photos" value="@photo.Id" />
+                    </label>
+                </div>
+                }
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+
+    </div>
+</div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<style>
+    .image-checkbox {
+        cursor: pointer;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        border: 8px solid transparent;
+        border-radius:8px;
+        outline: 0;
+    }
+
+        .image-checkbox input[type="checkbox"] {
+            display: none;
+        }
+
+    .image-checkbox-checked {
+        border-color: #9B59B6;
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    <script type="text/javascript">
+        jQuery(function($) {
+            // init the state from the input
+            $(".image-checkbox").each(function() {
+                if ($(this).find('input[type="checkbox"]').first().attr("checked")) {
+                    $(this).addClass('image-checkbox-checked');
+                }
+                else {
+                    $(this).removeClass('image-checkbox-checked');
+                }
+            });
+
+            // sync the state to the input
+            $(".image-checkbox").on("click", function(e) {
+                if ($(this).hasClass('image-checkbox-checked')) {
+                    $(this).removeClass('image-checkbox-checked');
+                    $(this).find('input[type="checkbox"]').first().removeAttr("checked");
+                }
+                else {
+                    $(this).addClass('image-checkbox-checked');
+                    $(this).find('input[type="checkbox"]').first().attr("checked", "checked");
+                }
+
+                e.preventDefault();
+            });
+        });
+    </script>
+    }
+    }

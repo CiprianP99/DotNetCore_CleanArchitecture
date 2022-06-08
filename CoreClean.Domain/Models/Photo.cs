@@ -26,7 +26,9 @@ namespace CoreClean.Domain.Models
         public virtual User User { get; set; }
 
         public virtual ICollection<Tag> Tags { get; set; }
+        //[InverseProperty("Albums")]
         public virtual ICollection<Album> Albums { get; set; }
+        
         [InverseProperty("PhotoLikes")]
         public virtual ICollection<User> UserLikes { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }

@@ -12,6 +12,8 @@ namespace CoreClean.Domain.Abstractions
         ICategoryRepository Categories { get; }
         ICommentRepository Comments { get; }
         IUserRepository Users { get; }
+        IAlbumRepository Albums { get; }
+        IFollowRepository Follows { get; }
         int Complete();
     }
 }

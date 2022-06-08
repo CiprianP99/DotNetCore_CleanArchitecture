@@ -12,6 +12,10 @@ namespace CoreClean.Infra.Data.Context
 {
     public class ProjectDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
+        public ProjectDbContext() : base()
+        {
+
+        }
         public ProjectDbContext(DbContextOptions<ProjectDbContext> options) : base(options) { }
 
         public DbSet<Album> Albums { get; set; }
@@ -32,14 +36,19 @@ namespace CoreClean.Infra.Data.Context
             builder.Entity<Follow>()                                            //  2.
                 .HasOne(u => u.Followee)
                 .WithMany(u => u.Follower)
-                .HasForeignKey(u => u.FollowerId)
+                .HasForeignKey(u => u.FolloweeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Follow>()                                            //  3.
                 .HasOne(u => u.Follower)
                 .WithMany(u => u.Followee)
-                .HasForeignKey(u => u.FolloweeId)
+                .HasForeignKey(u => u.FollowerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Photo>()
+                .HasMany(e => e.Comments)
+                .WithOne(e => e.Photo)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //builder.Entity<Category>()
             //    .Property(f => f.Id)

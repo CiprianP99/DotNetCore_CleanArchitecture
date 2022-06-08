@@ -16,6 +16,8 @@ namespace CoreClean.Infra.Data.Repositories
         public ICategoryRepository Categories { get; private set; }
         public ICommentRepository Comments { get; private set; }
         public IUserRepository Users { get; private set; }
+        public IAlbumRepository Albums { get; private set; }
+        public IFollowRepository Follows { get; private set; }
 
         public UnitOfWork(ProjectDbContext projectDbContext)
         {
@@ -24,6 +26,8 @@ namespace CoreClean.Infra.Data.Repositories
             Categories = new CategoryRepository(_projectDbContext);
             Comments = new CommentRepository(_projectDbContext);
             Users = new UserRepository(_projectDbContext);
+            Albums = new AlbumRepository(_projectDbContext);
+            Follows = new FollowRepository(_projectDbContext);
         }
 
         public int Complete()

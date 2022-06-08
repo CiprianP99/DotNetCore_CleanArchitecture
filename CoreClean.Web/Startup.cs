@@ -47,13 +47,15 @@ namespace CoreClean.Web
             services.Add(new ServiceDescriptor(typeof(ICategoryService), typeof(CategoryService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(ICommentService), typeof(CommentService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(IUserService), typeof(UserService), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(IAlbumService), typeof(AlbumService), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(IFollowService), typeof(FollowService), ServiceLifetime.Transient));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ProjectDbContext>();
             services.AddControllersWithViews();
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

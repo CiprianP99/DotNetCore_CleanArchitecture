@@ -27,18 +27,20 @@ namespace CoreClean.Web.Controllers
         private readonly ICategoryService _categoryService;
         private readonly ICommentService _commentService;
         private readonly IUserService _userService;
+        private readonly IFollowService _followService;
         private readonly IMapper _mapper;
         //private readonly UserManager<User> _userManager;
 
         public PhotoController(IWebHostEnvironment hostEnvironment, IPhotoService photoService,
             ICategoryService categoryService, ICommentService commentService, IMapper mapper,
-            IUserService userService)
+            IFollowService followService ,IUserService userService)
         {
             _hostEnvironment = hostEnvironment;
             _photoService = photoService;
             _categoryService = categoryService;
             _commentService = commentService;
             _userService = userService;
+            _followService = followService;
             _mapper = mapper;
         }
         // GET: PhotoController
@@ -63,12 +65,32 @@ namespace CoreClean.Web.Controllers
             {
                 return NotFound();
             }
+            var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            User user = _userService.Get(userId);
+            var photoS = _photoService.Get(id);
+            var followedUserId = photoS.UserId;
+            var followedUser = _userService.Get(followedUserId);
+
+            if (_followService.GetCertainFollow(userId, followedUserId)!=null)
+            {
+                TempData["boolFlag"] = "true";
+            }
+            else
+            {
+                TempData["boolFlag"] = "false";
+            }
+
+            PhotoDetailViewModel pVM = new PhotoDetailViewModel();
+
             var photo = _photoService.Get(id);
+
+            pVM = _mapper.Map<PhotoDetailViewModel>(photo);
+
             if (photo == null)
             {
                 return NotFound();
             }
-            return View(photo);
+            return View(pVM);
         }
 
         // GET: PhotoController/Create
@@ -146,35 +168,69 @@ namespace CoreClean.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult LikePhoto([FromForm] Photo photo)
+        public ActionResult Follow([FromForm] Photo photo)
         {
-            photo = _photoService.Find(x => x.Id == photo.Id).FirstOrDefault();
             var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             User user = _userService.Get(userId);
+            var photoS = _photoService.Get(photo.Id);
+            var followedUserId = photoS.UserId;
+            var followedUser = _userService.Get(followedUserId);
+           
 
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated && user.Followee.Any(x => x.FolloweeId == followedUserId))
             {
-                photo.UserLikes.Add(user);
-                _photoService.Save();
-                ViewBag.flag = 1;
+                var certainFollow = _followService.GetCertainFollow(userId, followedUserId);
+                //var followw = user.Follower.Select(x => x.FolloweeId == followedUserId).FirstOrDefault();
+                _followService.DeleteFollow(certainFollow);
+                _followService.Save();
+              
+                
+
+                //user.Followee.Remove(query);
             }
+            else
+            {
+                Follow newFollow = new Follow();
+                _followService.AddFollow(newFollow);
+                newFollow.Follower = user;
+                newFollow.Followee = followedUser;
+                _followService.Save();
+            }
+
+            //Follow newFollow = new Follow();
+           
+
             return RedirectToAction("Details", "Photo", new { Id = photo.Id });
         }
 
         [HttpPost]
-        public ActionResult UnLikePhoto([FromForm]Photo photo)
+        public ActionResult LikePhoto([FromForm] PhotoDetailViewModel photo)
         {
-            photo = _photoService.Find(x => x.Id == photo.Id).FirstOrDefault();
+
+            var photoS = _photoService.Find(x => x.Id == photo.Id).FirstOrDefault();
+
             var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             User user = _userService.Get(userId);
 
-            if(User.Identity.IsAuthenticated)
+            PhotoDetailViewModel pVM = new PhotoDetailViewModel();
+            pVM = _mapper.Map<PhotoDetailViewModel>(photoS);
+
+            //if (User.Identity.IsAuthenticated && _photoService.Find(x => x.UserLikes.Contains(user)).Any())
+            if (User.Identity.IsAuthenticated && pVM.UserLikes.Any(x => x.Id == userId))
             {
-                photo.UserLikes.Remove(user);
+
+                photoS.UserLikes.Remove(user);
                 _photoService.Save();
+                pVM.isLiked = false;
 
             }
-            return RedirectToAction("Details", "Photo", new { Id = photo.Id });
+            else
+            {
+                photoS.UserLikes.Add(user);
+                _photoService.Save();
+                pVM.isLiked = true;
+            }
+            return RedirectToAction("Details", "Photo", new { Id = pVM.Id });
         }
 
         // GET: PhotoController/Edit/5
@@ -199,18 +255,40 @@ namespace CoreClean.Web.Controllers
         }
 
         // GET: PhotoController/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(Guid id)
         {
-            return View();
+            var photo = _photoService.Get(id);
+
+            return View(photo);
         }
 
         // POST: PhotoController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(Guid id, IFormCollection collection)
         {
             try
             {
+                var photo = _photoService.Get(id);
+                var comms = photo.Comments;
+                if (comms != null)
+                {
+                    foreach (var el in comms)
+                    {
+                        _commentService.DeleteComment(el);
+                    }
+                }
+                _commentService.Save();
+
+                if (photo.UserLikes != null)
+                {
+                    var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                    User user = _userService.Get(userId);
+                    photo.UserLikes.Remove(user);
+                }
+                
+                _photoService.DeletePhoto(photo);
+                _photoService.Save();
                 return RedirectToAction(nameof(Index));
             }
             catch

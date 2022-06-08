@@ -13,7 +13,9 @@ namespace CoreClean.Web.Helpers
         public MappingProfiles()
         {
             CreateMap<PhotoViewModel, Photo>().ReverseMap();
+            CreateMap<Photo, PhotoDetailViewModel>().ReverseMap();
             CreateMap<CategoryViewModel, Category>().ReverseMap();
+            CreateMap<AlbumCreationViewModel, Album>().ReverseMap();
 
             }
         }
