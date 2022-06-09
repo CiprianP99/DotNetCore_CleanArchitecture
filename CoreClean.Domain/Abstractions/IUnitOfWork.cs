@@ -14,6 +14,7 @@ namespace CoreClean.Domain.Abstractions
         IUserRepository Users { get; }
         IAlbumRepository Albums { get; }
         IFollowRepository Follows { get; }
+        ITagRepository Tags { get; }
         int Complete();
     }
 }

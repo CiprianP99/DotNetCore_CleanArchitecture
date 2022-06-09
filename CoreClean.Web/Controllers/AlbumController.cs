@@ -29,10 +29,14 @@ namespace CoreClean.Web.Controllers
         // GET: AlbumController
         public ActionResult Index()
         {
+            if(User.FindFirstValue(ClaimTypes.NameIdentifier) != null)
+            {
+                var userID = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                var albums = _albumService.GetAlbumByUserId(userID);
+                return View(albums);
+            }
             
-            var userID = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var albums = _albumService.GetAlbumByUserId(userID);
-            return View(albums);
+            return View();
         }
 
         // GET: AlbumController/Details/5

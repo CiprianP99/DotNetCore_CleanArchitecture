@@ -30,6 +30,7 @@ namespace CoreClean.Infra.Data.Context
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            
             builder.Entity<Follow>()                                            //  1.
                 .HasKey(k => new { k.FollowerId, k.FolloweeId });
 
@@ -63,4 +64,6 @@ namespace CoreClean.Infra.Data.Context
         //            .MapRightKey("FollowerId"));
         //}
     }
+
+    
 }

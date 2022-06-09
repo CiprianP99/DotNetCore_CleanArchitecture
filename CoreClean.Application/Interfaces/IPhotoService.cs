@@ -23,5 +23,7 @@ namespace CoreClean.Application.Interfaces
         IEnumerable<Photo> GetAll();
         IEnumerable<Photo> Find(Expression<Func<Photo, bool>> predicate);
         IEnumerable<Photo> GetPhotoByUserId(Guid id);
+        
+        //IEnumerable<Photo> GetPhotoByTag(string tag);
     }
 }

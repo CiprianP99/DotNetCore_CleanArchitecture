@@ -10,11 +10,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using PagedList;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -28,34 +30,110 @@ namespace CoreClean.Web.Controllers
         private readonly ICommentService _commentService;
         private readonly IUserService _userService;
         private readonly IFollowService _followService;
+        private readonly ITagService _tagService;
         private readonly IMapper _mapper;
         //private readonly UserManager<User> _userManager;
 
         public PhotoController(IWebHostEnvironment hostEnvironment, IPhotoService photoService,
             ICategoryService categoryService, ICommentService commentService, IMapper mapper,
-            IFollowService followService ,IUserService userService)
+            IFollowService followService, IUserService userService, ITagService tagService)
         {
             _hostEnvironment = hostEnvironment;
             _photoService = photoService;
             _categoryService = categoryService;
             _commentService = commentService;
-            _userService = userService;
             _followService = followService;
+            _userService = userService;
+            _tagService = tagService;
             _mapper = mapper;
         }
         // GET: PhotoController
-        public ActionResult Index()
+        public ActionResult Index(string sortOrder, string search, List<Guid> catId, int? i)
         {
             var photos = _photoService.GetAll();
+            var tags = _tagService.GetAll();
+            var categories = _categoryService.GetAll();
+            ViewBag.OrderOptions = new List<SelectListItem>()
+            {
+                new SelectListItem { Value = "nameAsc", Text = "Title Ascending" },
+                new SelectListItem { Value = "nameDesc", Text = "Title Descending" },
+                new SelectListItem { Value = "likeAsc", Text = "Like Ascending" },
+                new SelectListItem { Value = "likeDesc", Text = "Like Descending" },
+                new SelectListItem { Value = "dateAsc", Text = "Date Ascending" },
+                new SelectListItem { Value = "dateDesc", Text = "Date Descending" }
+
+            };
+            ViewBag.CurrentOrdering = sortOrder;
+            ViewBag.Categories = categories.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name}).ToList();
+            ViewBag.CurrentCat = catId;
+          
+            //var result = from t in tags
+            //             join p in photos on t.PhotoId equals p.Id
+            //             where t.Name == search
+            //             select photos;
+            if(search != null)
+            {
+                photos = photos.Where(p => p.Tags.Any(t => t.Name.Contains(search)));
+            }
+            if(catId?.Any() == true)
+            {
+                photos = photos.Where(p => catId.Contains(p.CategoryId));
+            }
+            switch(sortOrder)
+            {
+                case "nameDesc":
+                    photos = photos.OrderByDescending(p => p.Title);
+                    break;
+                case "nameAsc":
+                    photos = photos.OrderBy(p => p.Title);
+                    break;
+                case "likeAsc":
+                    photos = photos.OrderBy(p => p.UserLikes.Count());
+                    break;
+                case "likeDesc":
+                    photos = photos.OrderByDescending(p => p.UserLikes.Count());
+                    break;
+                case "dateAsc":
+                    photos = photos.OrderBy(p => p.DatePublished);
+                    break;
+                case "dateDesc":
+                    photos = photos.OrderByDescending(p => p.DatePublished);
+                    break;
+                default:
+                    photos = photos.OrderByDescending(p => p.Id);
+                    break;
+
+            }
+            
             return View(photos);
         }
 
         // GET: PhotoController/UserIndex
         public ActionResult UserIndex()
         {
-            var userID = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var photos = _photoService.GetPhotoByUserId(userID);
-            return View(photos);
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != null)
+            {
+                var userID = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                var photos = _photoService.GetPhotoByUserId(userID);
+                return View(photos);
+            }
+            return View();
+        }
+
+        //GET: PhotoController/UserFavorites
+        public ActionResult UserFavorites()
+        {
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != null)
+            {
+                var userID = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                User user = _userService.Get(userID);
+                List<Photo> photoList = new List<Photo>();
+                photoList = user.PhotoLikes.ToList();
+                return View(photoList);
+            }
+
+            return View();
+
         }
 
         // GET: PhotoController/Details/5
@@ -71,7 +149,7 @@ namespace CoreClean.Web.Controllers
             var followedUserId = photoS.UserId;
             var followedUser = _userService.Get(followedUserId);
 
-            if (_followService.GetCertainFollow(userId, followedUserId)!=null)
+            if (_followService.GetCertainFollow(userId, followedUserId) != null)
             {
                 TempData["boolFlag"] = "true";
             }
@@ -99,7 +177,6 @@ namespace CoreClean.Web.Controllers
             PhotoViewModel pVM = new PhotoViewModel();
 
             var catList = _categoryService.GetAll().ToList();
-            //ViewBag.Categories = new SelectList(catList);
             pVM.catlist = new SelectList(catList, "Id", "Name");
             return View(pVM);
         }
@@ -118,6 +195,18 @@ namespace CoreClean.Web.Controllers
             filePath = trustedFileNameForFileStorage;
             filePath += Path.GetExtension(FormFile.FileName).ToLower();
             return filePath;
+        }
+
+
+        public Task<HttpResponseMessage> UploadAsFormDataContent(string url, byte[] image)
+        {
+            MultipartFormDataContent form = new MultipartFormDataContent
+                        {
+        { new ByteArrayContent(image, 0, image.Length), "photo", "pic.jpeg" }
+                        };
+
+            HttpClient client = new HttpClient();
+            return client.PostAsync(url, form);
         }
 
         // POST: PhotoController/Create
@@ -140,9 +229,20 @@ namespace CoreClean.Web.Controllers
                 var img = Image.FromFile(fPath);
                 var height = img.Height.ToString();
                 var width = img.Width.ToString();
+                
                 var resolution = width + "x" + height;
                 ph.Resolution = resolution;
                 ph.Format = Path.GetExtension(fPath).ToLower();
+                ph.DatePublished = DateTime.Now;
+                var response = await UploadAsFormDataContent("http://127.0.0.1:5000/imageclassifier/predict/", img.ImageToByteArray());
+                var contents = await response.Content.ReadAsStringAsync();
+                var listString = contents.Split(',').ToList();
+                foreach(var el in listString)
+                {
+                    Tag newTag = new Tag();
+                    newTag.Name = el;
+                    ph.Tags.Add(newTag);
+                }
                 _photoService.Save();
 
                 return RedirectToAction(nameof(Index));
@@ -175,7 +275,7 @@ namespace CoreClean.Web.Controllers
             var photoS = _photoService.Get(photo.Id);
             var followedUserId = photoS.UserId;
             var followedUser = _userService.Get(followedUserId);
-           
+
 
             if (User.Identity.IsAuthenticated && user.Followee.Any(x => x.FolloweeId == followedUserId))
             {
@@ -183,8 +283,8 @@ namespace CoreClean.Web.Controllers
                 //var followw = user.Follower.Select(x => x.FolloweeId == followedUserId).FirstOrDefault();
                 _followService.DeleteFollow(certainFollow);
                 _followService.Save();
-              
-                
+
+
 
                 //user.Followee.Remove(query);
             }
@@ -198,7 +298,7 @@ namespace CoreClean.Web.Controllers
             }
 
             //Follow newFollow = new Follow();
-           
+
 
             return RedirectToAction("Details", "Photo", new { Id = photo.Id });
         }
@@ -286,7 +386,7 @@ namespace CoreClean.Web.Controllers
                     User user = _userService.Get(userId);
                     photo.UserLikes.Remove(user);
                 }
-                
+
                 _photoService.DeletePhoto(photo);
                 _photoService.Save();
                 return RedirectToAction(nameof(Index));

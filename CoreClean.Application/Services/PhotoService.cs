@@ -67,6 +67,11 @@ namespace CoreClean.Application.Services
             return _unitOfWork.Photos.Find(p => p.UserId == id).ToList();
         }
 
+        
+        //public IEnumerable<Photo> GetPhotoByTag(string tag)
+        //{
+           
+        //}
 
     }
 }

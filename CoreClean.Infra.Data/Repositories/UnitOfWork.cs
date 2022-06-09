@@ -18,6 +18,7 @@ namespace CoreClean.Infra.Data.Repositories
         public IUserRepository Users { get; private set; }
         public IAlbumRepository Albums { get; private set; }
         public IFollowRepository Follows { get; private set; }
+        public ITagRepository Tags { get; private set; }
 
         public UnitOfWork(ProjectDbContext projectDbContext)
         {
@@ -28,6 +29,7 @@ namespace CoreClean.Infra.Data.Repositories
             Users = new UserRepository(_projectDbContext);
             Albums = new AlbumRepository(_projectDbContext);
             Follows = new FollowRepository(_projectDbContext);
+            Tags = new TagRepository(_projectDbContext);
         }
 
         public int Complete()

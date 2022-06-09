@@ -20,6 +20,7 @@ namespace CoreClean.Web.ViewModels
         public virtual User User { get; set; }
         public virtual ICollection<Tag> Tags { get; set; }
         public virtual ICollection<Album> Albums { get; set; }
+        public DateTime DatePublished { get; set; }
 
         [InverseProperty("PhotoLikes")]
         public virtual ICollection<User> UserLikes { get; set; }

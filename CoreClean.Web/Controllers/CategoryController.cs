@@ -2,6 +2,7 @@
 using CoreClean.Application.Interfaces;
 using CoreClean.Domain.Models;
 using CoreClean.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace CoreClean.Web.Controllers
 {
+    [Authorize(Roles = "Admin, User")]
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;

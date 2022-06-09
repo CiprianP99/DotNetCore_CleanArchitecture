@@ -15,6 +15,7 @@ namespace CoreClean.Domain.Models
         public string Resolution { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public DateTime DatePublished { get; set; }
 
         [ForeignKey("Category")]
         public Guid CategoryId { get; set; }

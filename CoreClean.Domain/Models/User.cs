@@ -14,17 +14,13 @@ namespace CoreClean.Domain.Models
         public string LastName { get; set; }
         public string ProfilePicture { get; set; }
         public virtual ICollection<Notification> Notifications { get; set; }
-        //public virtual ICollection<Follow> FollowingUsers { get; set; }
-        //public virtual ICollection<Follow> FollowedUsers { get; set; }
         public virtual ICollection<Report> Reports { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<Photo> Photos { get; set; }
         public virtual ICollection<Photo> PhotoLikes { get; set; }
         public virtual ICollection<Album> Albums { get; set; } 
-
         public virtual ICollection<Follow> Follower { get; set; }
         public virtual ICollection<Follow> Followee { get; set; }
-        //public virtual ICollection<User> Followers { get; set; }
-        //public virtual ICollection<User> Following { get; set; }
+
     }
 }

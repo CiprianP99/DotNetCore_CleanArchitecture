@@ -39,8 +39,7 @@ namespace CoreClean.Web
                     Configuration.GetConnectionString("ProjectConnection")).UseLazyLoadingProxies();
 
             });
-
-            
+  
             services.AddRepository();
             services.AddAutoMapper(typeof(MappingProfiles));
             services.Add(new ServiceDescriptor(typeof(IPhotoService), typeof(PhotoService), ServiceLifetime.Transient));
@@ -49,13 +48,15 @@ namespace CoreClean.Web
             services.Add(new ServiceDescriptor(typeof(IUserService), typeof(UserService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(IAlbumService), typeof(AlbumService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(IFollowService), typeof(FollowService), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(ITagService), typeof(TagService), ServiceLifetime.Transient));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddSignalR();
+
+            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddRoles<IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<ProjectDbContext>();
             services.AddControllersWithViews();
 
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

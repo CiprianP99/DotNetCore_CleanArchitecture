@@ -32,7 +32,7 @@
                   </div>
                   <div class="col-6 align-middle"  >
               @{
-                                      @if(boolFlag != "true")
+                                      @if((string)boolFlag != "true")
                     {
                                             <form asp-controller="Photo" asp-action="Follow" method="post">
 
@@ -132,7 +132,15 @@
 
             </div>
             <div class="col-sm-6 mx-auto">
-                <p>Tags: </p>
+                <p>
+                    Date added: @Html.DisplayFor(model => model.DatePublished)
+                </p>
+                <p>Tags:
+                @foreach(var el in Model.Tags)
+                {
+                        <span>@el.Name</span>
+                }
+                </p>
                 <p>Category: @Html.DisplayFor(model => model.Category.Name)</p>
                 <p>Resolution: @Html.DisplayFor(model => model.Resolution) </p>
                 <p>Format: @Html.DisplayFor(model => model.Format) </p>

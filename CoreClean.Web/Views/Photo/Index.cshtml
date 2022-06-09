@@ -2,173 +2,132 @@
 
 @{
     ViewData["Title"] = "Index";
+
 }
+<div class="container-fluid">
 
-
-
-
-
-<div class="row">
-    @foreach (var item in Model)
+    @using (Html.BeginForm("Index", "Photo", FormMethod.Get))
     {
 
-
-        <div class="col-md-4 img__wrap my-1">
-            <figure class="hover-box bg-dark text-white">
-                <img src="~/upload/photos/@Html.DisplayFor(modelItem => item.Name)" alt="hover-box-first" class="w-100" />
-                <figcaption class="text-right">
-                    <h3 class="bg-info p-1 mb-1">@item.Title</h3>
-                    <h4><small class="text-muted">by</small> @item.User.FirstName</h4>
-                </figcaption>
-                <a asp-action="Details" asp-route-id="@item.Id"></a>
-            </figure>
+        <div class="form">
+            <div class="input-group mb-3">
+                <select name="sortOrder" class="form-control form-select filter-select">
+                    <option>Sort</option>
+                    @foreach (var option in (List<SelectListItem>)ViewBag.OrderOptions)
+                    {
+                        <!option value="@(option.Value)" @(ViewBag.CurrentOrdering == option.Value ? "selected" : "")>@option.Text</!option>
+                    }
+                </select>
+                <input type="search" name="search" class="form-control" placeholder="Search..." aria-describedby="button-addon2">
+                <button class="btn btn-primary search-btn" type="submit" id="button-addon2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                    </svg>
+                </button>
+            </div>
+            <div class="input-group mb-3">
+                <select name="catId" id="example-getting-started" multiple="multiple">
+                    @foreach(var option in (List<SelectListItem>)ViewBag.Categories)
+                        {
+                    <!option value="@(option.Value)" @(((List<Guid>)ViewBag.CurrentCat).Contains(new Guid(option.Value)) ? "selected" : "")>@option.Text</!option>
+                    }
+                    
+                </select>
+            </div>
         </div>
+
     }
 </div>
 
-@*<div class="grid">
-   <div class="grid-resizer"></div>
-    @foreach (var item in Model)
-    {
 
-       
-            <div class="grid-item"><img src="~/upload/photos/@Html.DisplayFor(modelItem => item.Name)" alt="hover-box-first" class="w-100" /></div>
-           
+<div class="col-md-12">
+    <div class="row">
+        <hr>
 
-    }
-</div>*@
+        <div class="gal">
+            @foreach (var item in Model)
+            {
+                <figure class="hover-box text-white">
+                    <img src="~/upload/photos/@Html.DisplayFor(modelItem => item.Name)" alt="hover-box-first" class="p-0" />
+                    <figcaption class="text-right">
+                        <h3 class="bg-info p-1 mb-1">@item.Title</h3>
+                        <h4><small class="text-muted">by</small> @item.User.FirstName</h4>
+                    </figcaption>
+                    <a asp-action="Details" asp-route-id="@item.Id"></a>
+                </figure>
+
+            }
+        </div>
+    </div>
+</div>
 
 
-     <script type="text/javascript"></script>
-    <script src="~/lib/masonry/masonry.js"></script>
-    <script type='text/javascript'>
-    $(window).load(function(){
-  var $container = $('.grid').masonry();
-  // layout Masonry again after all images have loaded
-  $container.imagesLoaded( function() {
-    $container.masonry();
-  });
+@section Scripts
+{
+<script type='text/javascript'>
+   
+    $(document).ready(function() {
+        $('#example-getting-started').multiselect({
+  buttonClass: 'btn btn-outline-primary'
 });
+        
+    });
+</script>
+ }
 
-//function resizeGridItem(item){
-//  grid = document.getElementsByClassName("grid")[0];
-//  rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
-//  rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-row-gap'));
-//  rowSpan = Math.ceil((item.querySelector('.content').getBoundingClientRect().height+rowGap)/(rowHeight+rowGap));
-//    item.style.gridRowEnd = "span "+rowSpan;
-//}
 
-//function resizeAllGridItems(){
-//  allItems = document.getElementsByClassName("item");
-//  for(x=0;x<allItems.length;x++){
-//    resizeGridItem(allItems[x]);
-//  }
-//}
-
-//function resizeInstance(instance){
-//	item = instance.elements[0];
-//  resizeGridItem(item);
-//}
-//var $grid = $('.grid').imagesLoaded( function() {
-//  // init Masonry after all images have loaded
-//  $grid.masonry({
-//    // options...
-//  });
-//});
-
-//window.onload = resizeAllGridItems();
-//window.addEventListener("resize", resizeAllGridItems);
-
-//allItems = document.getElementsByClassName("item");
-//for(x=0;x<allItems.length;x++){
-//  imagesLoaded( allItems[x], resizeInstance);
-//}
-    </script>
-
-    }
 <style>
     /* ---- grid ---- */
 
-.grid {
-  background: #DDD;
+    .gal {
+        -webkit-column-count: 3; /* Chrome, Safari, Opera */
+        -moz-column-count: 3; /* Firefox */
+        column-count: 3;
+    }
+
+        .gal img {
+            width: 100%;
+            padding: 7px 0;
+        }
+
+    @@media (max-width: 500px) {
+
+        .gal {
+            -webkit-column-count: 1; /* Chrome, Safari, Opera */
+            -moz-column-count: 1; /* Firefox */
+            column-count: 1;
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .gal {
+            -webkit-column-count: 2; /* Chrome, Safari, Opera */
+            -moz-column-count: 2; /* Firefox */
+            column-count: 2;
+        }
+    }
+    .custom-select {
+    display: inline-block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem 1.75rem .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    vertical-align: middle;
+    background: #fff ;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
 }
 
-/* clear fix */
-.grid:after {
-  content: '';
-  display: block;
-  clear: both;
+.form-check-label
+{
+    color:black;
 }
-
-    .grid-sizer,
-.grid-item {
-  width: 33.333%;
-}
-
-.grid-item {
-  float: left;
-}
-
-.grid-item img {
-  display: block;
-  width: 100%;
-}
-/*  .grid {
-  display: grid;
-  grid-gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
-  grid-auto-rows: 20px;
- 
-}
-.item {
-  background-color: #ffffff;
-}
-
-
-
-
-
-
-
-
-
-
-
-       */ 
-  /* .grid {
-            background: #EEE;
-            max-width: 1200px;
-        }
-       .grid:after {
-            content: '';
-            display: block;
-            clear: both;
-       }
-        .grid-sizer,
-        .grid-item {
-            width: 20%;
-        }
-        .grid-item {
-            height: 120px;
-            float: left;
-            background: #c7f6f5;
-            border: 2px solid #333;
-            border-color: hsla(0, 0%, 0%, 0.5);
-            border-radius: 5px;
-        }
-        .grid-item--width2 {
-            width: 40%;
-        }
-        .grid-item--width3 {
-            width: 60%;
-        }
-        .grid-item--height2 {
-            height: 200px;
-        }
-        .grid-item--height3 {
-            height: 260px;
-        }
-        .grid-item--height4 {
-            height: 360px;
-        }*/
 </style>
+
