@@ -15,5 +15,7 @@ namespace CoreClean.Application.Interfaces
         User Get(Guid id);
         IEnumerable<User> GetAll();
         IEnumerable<User> Find(Expression<Func<User, bool>> predicate);
+        IEnumerable<User> GetFollowers(Guid id);
+        IEnumerable<User> GetFollowing(Guid id);
     }
 }

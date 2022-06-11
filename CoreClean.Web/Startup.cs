@@ -18,6 +18,7 @@ using CoreClean.Web.Helpers;
 using CoreClean.Application.Interfaces;
 using CoreClean.Application.Services;
 using Microsoft.AspNetCore.Http;
+using CoreClean.Web.Hubs;
 
 namespace CoreClean.Web
 {
@@ -80,6 +81,13 @@ namespace CoreClean.Web
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHub<NotificationHub>("/NotificationHub");
+                    
+                    
+            });
 
             app.UseEndpoints(endpoints =>
             {

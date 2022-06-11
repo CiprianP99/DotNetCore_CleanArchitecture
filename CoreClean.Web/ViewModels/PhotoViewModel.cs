@@ -22,9 +22,10 @@ namespace CoreClean.Web.ViewModels
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; }
         //public IEnumerable<SelectListItem> Categories { get; set; }
-        public virtual ICollection<Tag> Tags { get; set; }
+        public virtual ICollection<TagViewModel> Tags { get; set; }
 
         public SelectList catlist { get; set; }
+        public UserViewModel User { get; set; }
 
         [Required]
         [Display(Name = "File")]

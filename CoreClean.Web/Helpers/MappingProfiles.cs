@@ -16,6 +16,8 @@ namespace CoreClean.Web.Helpers
             CreateMap<Photo, PhotoDetailViewModel>().ReverseMap();
             CreateMap<CategoryViewModel, Category>().ReverseMap();
             CreateMap<AlbumCreationViewModel, Album>().ReverseMap();
+            CreateMap<TagViewModel, Tag>().ReverseMap();
+            CreateMap<UserViewModel, User>().ReverseMap();
 
             }
         }

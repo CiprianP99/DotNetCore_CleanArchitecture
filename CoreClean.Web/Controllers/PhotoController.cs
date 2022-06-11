@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using PagedList;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -32,6 +34,7 @@ namespace CoreClean.Web.Controllers
         private readonly IFollowService _followService;
         private readonly ITagService _tagService;
         private readonly IMapper _mapper;
+        private const int PageSize = 10;
         //private readonly UserManager<User> _userManager;
 
         public PhotoController(IWebHostEnvironment hostEnvironment, IPhotoService photoService,
@@ -48,11 +51,13 @@ namespace CoreClean.Web.Controllers
             _mapper = mapper;
         }
         // GET: PhotoController
-        public ActionResult Index(string sortOrder, string search, List<Guid> catId, int? i)
+        public ActionResult Index(string sortOrder, string search, List<Guid> catId)
         {
+
             var photos = _photoService.GetAll();
             var tags = _tagService.GetAll();
             var categories = _categoryService.GetAll();
+            photos = FilterPhotos(photos, sortOrder, search, catId);
             ViewBag.OrderOptions = new List<SelectListItem>()
             {
                 new SelectListItem { Value = "nameAsc", Text = "Title Ascending" },
@@ -64,22 +69,29 @@ namespace CoreClean.Web.Controllers
 
             };
             ViewBag.CurrentOrdering = sortOrder;
-            ViewBag.Categories = categories.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name}).ToList();
+            ViewBag.Categories = categories.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList();
             ViewBag.CurrentCat = catId;
-          
+            ViewBag.CurrentSearch = search;
             //var result = from t in tags
             //             join p in photos on t.PhotoId equals p.Id
             //             where t.Name == search
             //             select photos;
-            if(search != null)
+
+
+            return View(photos.Take(PageSize));
+        }
+
+        private IEnumerable<Photo> FilterPhotos(IEnumerable<Photo> photos, string sortOrder, string search, List<Guid> catId)
+        {
+            if (search != null)
             {
                 photos = photos.Where(p => p.Tags.Any(t => t.Name.Contains(search)));
             }
-            if(catId?.Any() == true)
+            if (catId?.Any() == true)
             {
                 photos = photos.Where(p => catId.Contains(p.CategoryId));
             }
-            switch(sortOrder)
+            switch (sortOrder)
             {
                 case "nameDesc":
                     photos = photos.OrderByDescending(p => p.Title);
@@ -104,9 +116,44 @@ namespace CoreClean.Web.Controllers
                     break;
 
             }
-            
-            return View(photos);
+            return photos;
         }
+
+        public ActionResult GetPaginatedPhotos(int page, string sortOrder, string search, List<Guid> catId, int limit = PageSize)
+        {
+            var photos = FilterPhotos(_photoService.GetAll(), sortOrder, search, catId).Skip(page * limit).Take(limit).ToList().Select(c => _mapper.Map<PhotoViewModel>(c));
+
+            if(!photos.Any())
+            {
+                return NotFound();
+            }
+            return Content(JsonConvert.SerializeObject(photos, Formatting.None,
+                        new JsonSerializerSettings()
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        }), MediaTypeNames.Application.Json);
+            
+            
+        }
+
+        //GET: PhotoController/FollowingIndex
+        public ActionResult FollowingIndex()
+        {
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != null)
+            {
+                var userID = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                User user = _userService.Get(userID);
+                var photos = _photoService.GetAll();
+                //photos = photos.Where(p => p.User.Followee.Any(u => u.FollowerId == userID));
+                photos = photos.Where(p => p.User.Follower.Any(u => u.FollowerId == userID));
+
+                return View(photos);
+            }
+            return View();
+
+        }
+
+
 
         // GET: PhotoController/UserIndex
         public ActionResult UserIndex()
@@ -229,7 +276,7 @@ namespace CoreClean.Web.Controllers
                 var img = Image.FromFile(fPath);
                 var height = img.Height.ToString();
                 var width = img.Width.ToString();
-                
+
                 var resolution = width + "x" + height;
                 ph.Resolution = resolution;
                 ph.Format = Path.GetExtension(fPath).ToLower();
@@ -237,7 +284,7 @@ namespace CoreClean.Web.Controllers
                 var response = await UploadAsFormDataContent("http://127.0.0.1:5000/imageclassifier/predict/", img.ImageToByteArray());
                 var contents = await response.Content.ReadAsStringAsync();
                 var listString = contents.Split(',').ToList();
-                foreach(var el in listString)
+                foreach (var el in listString)
                 {
                     Tag newTag = new Tag();
                     newTag.Name = el;
@@ -330,7 +377,9 @@ namespace CoreClean.Web.Controllers
                 _photoService.Save();
                 pVM.isLiked = true;
             }
+            var id = photoS.Id;
             return RedirectToAction("Details", "Photo", new { Id = pVM.Id });
+
         }
 
         // GET: PhotoController/Edit/5
@@ -370,9 +419,10 @@ namespace CoreClean.Web.Controllers
             try
             {
                 var photo = _photoService.Get(id);
-                var comms = photo.Comments;
-                if (comms != null)
+
+                if (photo.Comments != null)
                 {
+                    var comms = photo.Comments;
                     foreach (var el in comms)
                     {
                         _commentService.DeleteComment(el);

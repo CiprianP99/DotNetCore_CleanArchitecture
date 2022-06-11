@@ -27,11 +27,11 @@
             </div>
             <div class="input-group mb-3">
                 <select name="catId" id="example-getting-started" multiple="multiple">
-                    @foreach(var option in (List<SelectListItem>)ViewBag.Categories)
-                        {
-                    <!option value="@(option.Value)" @(((List<Guid>)ViewBag.CurrentCat).Contains(new Guid(option.Value)) ? "selected" : "")>@option.Text</!option>
+                    @foreach (var option in (List<SelectListItem>)ViewBag.Categories)
+                    {
+                        <!option value="@(option.Value)" @(((List<Guid>)ViewBag.CurrentCat).Contains(new Guid(option.Value)) ? "selected" : "")>@option.Text</!option>
                     }
-                    
+
                 </select>
             </div>
         </div>
@@ -40,7 +40,7 @@
 </div>
 
 
-<div class="col-md-12">
+@*<div class="col-md-12">
     <div class="row">
         <hr>
 
@@ -59,75 +59,190 @@
             }
         </div>
     </div>
+</div>*@
+<hr />
+<div class="grid">
+
+
+    @foreach (var item in Model)
+    {
+        <div class="grid-item">
+            <figure class="hover-box text-white">
+                <img src="~/upload/photos/@Html.DisplayFor(modelItem => item.Name)" alt="hover-box-first" />
+                <figcaption class="text-right">
+                    <h3 class="bg-info p-1 mb-1">@item.Title</h3>
+                    <h4><small class="text-muted">by</small> @item.User.FirstName</h4>
+                </figcaption>
+                <a asp-action="Details" asp-route-id="@item.Id"></a>
+            </figure>
+        </div>
+    }
+    <div class="grid-sizer"></div>
 </div>
+<div class="scroll-status">
+    <p class="infinite-scroll-request">
+       Loading...
+    </p>
+    <p class="infinite-scroll-error">No more pages to load</p>
+    <p class="infinite-scroll-last">Last page loaded</p>
+</div>
+<script type="text/html" id="photo-template">
+    <div class="grid-item">
+            <figure class="hover-box text-white">
+                <img src="~/upload/photos/{{Name}}" alt="hover-box-first" />
+                <figcaption class="text-right">
+                    <h3 class="bg-info p-1 mb-1">{{Title}}</h3>
+                    <h4><small class="text-muted">by</small>{{User.FirstName}} </h4>
+                </figcaption>
+                <a href="/Photo/Details/{{Id}}"></a>
+            </figure>
+        </div>
+</script>
 
 
 @section Scripts
-{
-<script type='text/javascript'>
-   
-    $(document).ready(function() {
-        $('#example-getting-started').multiselect({
-  buttonClass: 'btn btn-outline-primary'
-});
-        
-    });
-</script>
+    {
+    <script type='text/javascript'>
+        let itemTemplateSrc = document.querySelector('#photo-template').innerHTML;
+
+        function getItem(photo) {
+            return microTemplate(itemTemplateSrc, photo);
+        }
+
+        // micro templating, sort-of
+        function microTemplate(src, data) {
+            // replace {{tags}} in source
+            return src.replace(/\{\{([\w\-_.]+)\}\}/gi, function(match, key) {
+                // walk through objects to get value
+                let value = data;
+                key.split('.').forEach((part) => {
+                    value = value[part];
+                });
+                return value;
+            });
+        }
+        $(document).ready(function() {
+            $('#example-getting-started').multiselect({
+                buttonClass: 'btn btn-outline-primary',
+                templates: {
+                    button: '<button type="button" class="multiselect dropdown-toggle btn btn-primary" data-bs-toggle="dropdown" aria-expanded="false"><span class="multiselect-selected-text"></span></button>',
+                },
+            });
+            var $grid = $('.grid').imagesLoaded(function() {
+
+                let msnry = $grid.masonry({
+
+                    //gutter: '.gutter-sizer',
+                    itemSelector: '.grid-item',
+                    percentPosition: true,
+                    columnWidth: '.grid-sizer'
+                });
+                let infScroll = new InfiniteScroll('.grid', {
+                    //path: `https://api.unsplash.com/photos?client_id=${clientId}&page={{#}}`,
+                    path: '@Html.Raw(Url.Action("GetPaginatedPhotos","Photo", new {page = "plm", sortOrder = ViewBag.CurrentOrdering, search = ViewBag.CurrentSearch, catId = ViewBag.CurrentCat}).Replace("plm", "{{#}}"))',
+                    responseBody: 'json',
+                    status: '.scroll-status',
+                    history: false,
+                });
+                let proxyDiv = document.createElement('div');
+                infScroll.on('append', function() {
+                     
+                });
+                infScroll.on('load', function(data) {
+                    // convert data into HTML
+                    let itemsHTML = data.map(getItem).join('');
+                    // get elements from HTML string
+                    proxyDiv.innerHTML = itemsHTML;
+                    let items = proxyDiv.querySelectorAll('.grid-item');
+                    // append items after imagesLoaded
+                    imagesLoaded(items, function() {
+                        infScroll.appendItems(items);
+                        $grid.masonry('appended', items);
+                        
+                        
+                       
+
+                    });
+                });
+            });
+
+        });
+
+
+
+    </script>
+
  }
 
 
-<style>
-    /* ---- grid ---- */
+    <style>
 
-    .gal {
-        -webkit-column-count: 3; /* Chrome, Safari, Opera */
-        -moz-column-count: 3; /* Firefox */
-        column-count: 3;
-    }
+        .hover-box {
+            margin-bottom: 5px;
+        }
+        /*.gutter-sizer { width: 2%; }*/
+        .grid {
+            background: #FFF;
+        }
 
-        .gal img {
+            /* clear fix */
+            .grid:after {
+                content: '';
+                display: block;
+                clear: both;
+            }
+
+        /* ---- .grid-item ---- */
+        .grid-item {
+            padding-right: 2.5px;
+            padding-left: 2.5px;
+        }
+
+        .grid-sizer,
+        .grid-item {
+            width: 33.333%;
+        }
+        /* @@media only screen and (max-width: 600px)
+                                                {
+                                                    .grid-size,
+                                                    .grid-item {
+                                                        width:50%;
+                                                    }
+                                                }*/
+
+
+
+
+        .grid-item {
+            float: left;
+        }
+
+            .grid-item img {
+                display: block;
+                width: 100%;
+            }
+
+
+        .custom-select {
+            display: inline-block;
             width: 100%;
-            padding: 7px 0;
+            height: calc(1.5em + .75rem + 2px);
+            padding: .375rem 1.75rem .375rem .75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            vertical-align: middle;
+            background: #fff;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
-    @@media (max-width: 500px) {
-
-        .gal {
-            -webkit-column-count: 1; /* Chrome, Safari, Opera */
-            -moz-column-count: 1; /* Firefox */
-            column-count: 1;
+        .form-check-label {
+            color: black;
         }
-    }
-
-    @@media (max-width: 900px) {
-        .gal {
-            -webkit-column-count: 2; /* Chrome, Safari, Opera */
-            -moz-column-count: 2; /* Firefox */
-            column-count: 2;
-        }
-    }
-    .custom-select {
-    display: inline-block;
-    width: 100%;
-    height: calc(1.5em + .75rem + 2px);
-    padding: .375rem 1.75rem .375rem .75rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #495057;
-    vertical-align: middle;
-    background: #fff ;
-    border: 1px solid #ced4da;
-    border-radius: .25rem;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-
-}
-
-.form-check-label
-{
-    color:black;
-}
-</style>
+    </style>
 

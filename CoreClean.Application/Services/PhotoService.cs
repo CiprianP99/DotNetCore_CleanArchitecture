@@ -70,7 +70,7 @@ namespace CoreClean.Application.Services
         
         //public IEnumerable<Photo> GetPhotoByTag(string tag)
         //{
-           
+
         //}
 
     }

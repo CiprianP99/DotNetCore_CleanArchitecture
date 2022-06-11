@@ -7,37 +7,52 @@
     ViewData["Title"] = "Index";
 }
 
-@if(User.IsInRole("User") || User.IsInRole("Admin"))
+@if (User.IsInRole("User") || User.IsInRole("Admin"))
 {
-    
-<h1>Your albums</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 
-<div class="row">
-    @foreach (var item in Model)
+
+
+    @if (Model.Any())
     {
-        <div class="col-md-4 d-flex justify-content-center">
-            <div class="card cardModel" style="width: 18rem;">
-                <img class="card-img-top" src="~/upload/photos/@Html.DisplayFor(modelItem => item.Photos.ElementAt(0).Name)" alt="Card image cap">
-                <div class="card-body">
-                    <h5 class="card-title">@Html.DisplayFor(modelItem => item.Name)</h5>
-                    <p class="card-text">@Html.DisplayFor(modelItem => item.Description)</p>
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+        <h1>Your albums</h1>
+        <p>
+            <button class="btn btn-primary" asp-action="Create">Create New</button>
+        </p>
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 d-flex justify-content-center">
+                    <div class="card cardModel" style="width: 18rem;">
+                        <img class="card-img-top" src="~/upload/photos/@Html.DisplayFor(modelItem => item.Photos.ElementAt(0).Name)" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">@Html.DisplayFor(modelItem => item.Name)</h5>
+                            <p class="card-text">@Html.DisplayFor(modelItem => item.Description)</p>
+                            <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
     }
-    </div>
+    else
+    {
+
+        <div class="align-items-center justify-content-center text-center pt-4">
+            <h3>You don't have any album</h3>
+            <p>
+                <a class="btn btn-primary" asp-action="Create">Create New</a>
+            </p>
+        </div>
+
+    }
 }
 else
 {
-    <div class="align-items-center justify-content-center text-center pt-4" >
+    <div class="align-items-center justify-content-center text-center pt-4">
         <h3 class="pb-2 mb-4">You must login in order to create/view your albums</h3>
         <button class="btn btn-primary p-0" style="width:20%;"><a class="nav-link " style="text-decoration:none; color:white" asp-area="Identity" asp-page="/Account/Login">Login</a></button>
-        </div>   
+    </div>
 }
 <style>
     .cardModel {

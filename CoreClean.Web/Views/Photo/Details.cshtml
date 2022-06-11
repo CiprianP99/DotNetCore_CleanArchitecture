@@ -7,7 +7,7 @@
 @{
     ViewData["Title"] = "Details";
     var likes = Model.UserLikes.Count;
-    var userId =new Guid( User.FindFirstValue(ClaimTypes.NameIdentifier));
+    var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier));
     var boolFlag = @TempData["boolFlag"];
 
 }
@@ -23,61 +23,93 @@
 </div>
 <div class="card cardEdit">
     <div class="card-body">
-        <div class="row " >
+        <div class="row ">
             <div class="col-sm-5 mx-auto ">
-              <p class="p-0 m-0" style="font-size:16px;font-weight:bold">Author </p>
-              <div class="row align-items-center" style="height:70%;width:65%;">
-                  <div class="col align-right" >
-              @Model.User.FirstName @Model.User.LastName 
-                  </div>
-                  <div class="col-6 align-middle"  >
-              @{
-                                      @if((string)boolFlag != "true")
-                    {
-                                            <form asp-controller="Photo" asp-action="Follow" method="post">
+                <p class="p-0 m-0" style="font-size:16px;font-weight:bold">Author </p>
+                <div class="inline">
+                    
+                     @Model.User.FirstName @Model.User.LastName 
+                     </div>
+                     @if (Model.UserId != userId)
+                     {
+                     <div class="inline" style="width:100px;padding-left:5px;">
+                     @{
+                                    @if ((string)boolFlag != "true")
+                            {
+                                        <form asp-controller="Photo" asp-action="Follow" method="post">
 
-                                      <input name="Id" value="@Model.Id" type="hidden"/>
-                                      <button type="submit" class="btn btn-primary p-0" 
-                                      style="border-radius:10px;width:100%;">Follow</button>
-                                            </form>
-                    }
-                    else
-                    {
-                                            <form asp-controller="Photo" asp-action="Follow" method="post">
+                                            <input name="Id" value="@Model.Id" type="hidden" />
+                                            <button type="submit" class="btn btn-primary p-0"
+                                                style="border-radius:10px;width:100%;">
+                                                Follow
+                                            </button>
+                                        </form>
+                            }
+                            else
+                            {
+                                        <form asp-controller="Photo" asp-action="Follow" method="post">
 
-                                      <input name="Id" value="@Model.Id" type="hidden"/>
-                                      <button type="submit" class="btn btn-info p-0" style="border-radius:10px;width:100%;" >Unfollow</button>
-                                            </form>
-                    }
+                                            <input name="Id" value="@Model.Id" type="hidden" />
+                                            <button type="submit" class="btn btn-info p-0" style="border-radius:10px;width:100%;">Unfollow</button>
+                                        </form>
+                            }
+                        }
+                </div>
                 }
-                </div>
-                </div>
-       
+                @*<div class="row align-items-center" style="height:70%;width:65%;">
+                    <div class="col align-right">
+                        @Model.User.FirstName @Model.User.LastName
+                    </div>
+                    <div class="col-6 align-middle">
+                        @{
+                            @if ((string)boolFlag != "true")
+                            {
+                                <form asp-controller="Photo" asp-action="Follow" method="post">
 
-              
+                                    <input name="Id" value="@Model.Id" type="hidden" />
+                                    <button type="submit" class="btn btn-primary p-0"
+                                        style="border-radius:10px;width:100%;">
+                                        Follow
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-controller="Photo" asp-action="Follow" method="post">
+
+                                    <input name="Id" value="@Model.Id" type="hidden" />
+                                    <button type="submit" class="btn btn-info p-0" style="border-radius:10px;width:100%;">Unfollow</button>
+                                </form>
+                            }
+                        }
+                    </div>
+                </div>*@
+
+
+
             </div>
             <div class="col-sm-5 mx-auto" style="text-align:center">
-                @{ 
- 
-                    if(Model.UserLikes.Any(x => x.Id == userId))
+                @{
+
+                    if (Model.UserLikes.Any(x => x.Id == userId))
                     {
 
-                                                    <form asp-controller="Photo" asp-action="LikePhoto" method="post">
-                                                <input name="Id" value="@Model.Id" type="hidden" />
-                                            
-                                                <button type="submit" style="border: none; background-color:#F5F5F5"><img style="width:7%; text-align:left" src="~/images/liked.png" /> </button>
-                                                </form>
+                                <form asp-controller="Photo" asp-action="LikePhoto" method="post">
+                                    <input name="Id" value="@Model.Id" type="hidden" />
+
+                                    <button type="submit" style="border: none; background-color:#F5F5F5"><img style="width:7%; text-align:left" src="~/images/liked.png" /> </button>
+                                </form>
                     }
                     else
                     {
-                                                <form asp-controller="Photo" asp-action="LikePhoto" method="post">
-                                                <input name="Id" value="@Model.Id" type="hidden" />
-                                            
-                                                <button type="submit" style="border: none; background-color:#F5F5F5"><img style="width:7%; text-align:left" src="~/images/like.png" /> </button>
-                                           
-                                                </form>
+                                <form asp-controller="Photo" asp-action="LikePhoto" method="post">
+                                    <input name="Id" value="@Model.Id" type="hidden" />
+
+                                    <button type="submit" style="border: none; background-color:#F5F5F5"><img style="width:7%; text-align:left" src="~/images/like.png" /> </button>
+
+                                </form>
                     }
-                    
+
                 }
                 @if (likes == 0)
                 {
@@ -96,9 +128,9 @@
             </div>
         </div>
         <hr class="fading-separator" />
-        <div class="row" >
+        <div class="row">
             <div class="col-sm-6 mx-auto" style="border-right: 1px solid #BDBDBD ">
-                
+
                 <div class="card" style="background-color: #ECEFF1 ">
                     <div class=" height-100 d-flex justify-content-center align-items-center ">
                         <div class="p-3 cardComment">
@@ -117,40 +149,63 @@
                     <hr />
                     <div>
                         @if (Model.Comments.Count != 0)
-                        { 
+                        {
                             @foreach (var item in Model.Comments)
                             {
                                 <partial name="_CommentPartial" model="item" />
-                            }      
+                            }
                         }
-                        else {
+                        else
+                        {
                             <p style="margin-left: 3rem;"> Be the first one to comment!</p>
                         }
                     </div>
                 </div>
-               
+
 
             </div>
             <div class="col-sm-6 mx-auto">
                 <p>
                     Date added: @Html.DisplayFor(model => model.DatePublished)
                 </p>
-                <p>Tags:
-                @foreach(var el in Model.Tags)
-                {
+                <p>
+                    Tags:
+                    @foreach (var el in Model.Tags)
+                    {
                         <span>@el.Name</span>
-                }
+                    }
                 </p>
                 <p>Category: @Html.DisplayFor(model => model.Category.Name)</p>
                 <p>Resolution: @Html.DisplayFor(model => model.Resolution) </p>
                 <p>Format: @Html.DisplayFor(model => model.Format) </p>
                 <div class="container" style="text-align:right">
-                    @if(Model.UserId == userId)
+                    @if (Model.UserId == userId)
                     {
                         <button class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">Edit</button>
-                        <button class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.Id">Delete</button>
-                        
+                  
+                        <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#deleteModal">Delete</button>
+                        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Confirm Delete</h5>
+
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete this photo?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <form asp-action="Delete">
+                                            <input type="hidden" asp-for=@Model.Id />
+                                            <button type="submit" value="Delete" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
+
                 </div>
             </div>
 
@@ -161,3 +216,10 @@
     @*<a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |*@
     <a asp-action="Index">Back to List</a>
 </div>
+<style>
+    div.inline { float:left; }
+.clearBoth { clear:both; }
+    .close:not(:disabled):not(.disabled) {
+        cursor: pointer;
+    }
+</style>
