@@ -33,13 +33,14 @@ namespace CoreClean.Web.Controllers
         private readonly IUserService _userService;
         private readonly IFollowService _followService;
         private readonly ITagService _tagService;
+        private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
         private const int PageSize = 10;
         //private readonly UserManager<User> _userManager;
 
         public PhotoController(IWebHostEnvironment hostEnvironment, IPhotoService photoService,
             ICategoryService categoryService, ICommentService commentService, IMapper mapper,
-            IFollowService followService, IUserService userService, ITagService tagService)
+            IFollowService followService, IUserService userService, INotificationService notificationService,ITagService tagService)
         {
             _hostEnvironment = hostEnvironment;
             _photoService = photoService;
@@ -48,6 +49,7 @@ namespace CoreClean.Web.Controllers
             _followService = followService;
             _userService = userService;
             _tagService = tagService;
+            _notificationService = notificationService; 
             _mapper = mapper;
         }
         // GET: PhotoController
@@ -80,7 +82,7 @@ namespace CoreClean.Web.Controllers
 
             return View(photos.Take(PageSize));
         }
-
+       
         private IEnumerable<Photo> FilterPhotos(IEnumerable<Photo> photos, string sortOrder, string search, List<Guid> catId)
         {
             if (search != null)
@@ -292,6 +294,8 @@ namespace CoreClean.Web.Controllers
                 }
                 _photoService.Save();
 
+                _notificationService.AddPhotoNotification(ph.Id, ph.UserId);
+
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -311,18 +315,21 @@ namespace CoreClean.Web.Controllers
             comment.UserId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             _commentService.AddComment(comment);
             _commentService.Save();
+
+            _notificationService.AddCommentNotification(comment.Id);
+            
+
             return RedirectToAction("Details", "Photo", new { Id = comment.PhotoId });
         }
 
-        [HttpPost]
-        public ActionResult Follow([FromForm] Photo photo)
+        [HttpGet]
+        public ActionResult Follow(Guid photoId)
         {
             var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             User user = _userService.Get(userId);
-            var photoS = _photoService.Get(photo.Id);
+            var photoS = _photoService.Get(photoId);
             var followedUserId = photoS.UserId;
             var followedUser = _userService.Get(followedUserId);
-
 
             if (User.Identity.IsAuthenticated && user.Followee.Any(x => x.FolloweeId == followedUserId))
             {
@@ -330,9 +337,6 @@ namespace CoreClean.Web.Controllers
                 //var followw = user.Follower.Select(x => x.FolloweeId == followedUserId).FirstOrDefault();
                 _followService.DeleteFollow(certainFollow);
                 _followService.Save();
-
-
-
                 //user.Followee.Remove(query);
             }
             else
@@ -342,44 +346,37 @@ namespace CoreClean.Web.Controllers
                 newFollow.Follower = user;
                 newFollow.Followee = followedUser;
                 _followService.Save();
+                _notificationService.AddFollowNotification(userId, followedUserId);
             }
-
+            var id = photoS.Id;
             //Follow newFollow = new Follow();
-
-
-            return RedirectToAction("Details", "Photo", new { Id = photo.Id });
+            //return RedirectToAction("Details", "Photo", new { Id = photo.Id });
+            return Ok();
         }
 
-        [HttpPost]
-        public ActionResult LikePhoto([FromForm] PhotoDetailViewModel photo)
+        [HttpGet]
+        public ActionResult LikePhoto(Guid photoId)
         {
-
-            var photoS = _photoService.Find(x => x.Id == photo.Id).FirstOrDefault();
-
+            var photoS = _photoService.Find(x => x.Id == photoId).FirstOrDefault();
             var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             User user = _userService.Get(userId);
 
-            PhotoDetailViewModel pVM = new PhotoDetailViewModel();
-            pVM = _mapper.Map<PhotoDetailViewModel>(photoS);
-
             //if (User.Identity.IsAuthenticated && _photoService.Find(x => x.UserLikes.Contains(user)).Any())
-            if (User.Identity.IsAuthenticated && pVM.UserLikes.Any(x => x.Id == userId))
+            if (User.Identity.IsAuthenticated && photoS.UserLikes.Any(x => x.Id == userId))
             {
-
                 photoS.UserLikes.Remove(user);
                 _photoService.Save();
-                pVM.isLiked = false;
-
+                
             }
             else
             {
                 photoS.UserLikes.Add(user);
                 _photoService.Save();
-                pVM.isLiked = true;
+                _notificationService.AddLikeNotification(photoId, photoS.UserId);
             }
             var id = photoS.Id;
-            return RedirectToAction("Details", "Photo", new { Id = pVM.Id });
-
+            //return RedirectToAction("Details", "Photo", new { Id = pVM.Id });
+            return Ok();
         }
 
         // GET: PhotoController/Edit/5

@@ -1,0 +1,97 @@
+﻿@model CoreClean.Domain.Models.Album
+
+@{
+    ViewData["Title"] = "Details";
+    var photos = Model.Photos;
+}
+
+  <section class="py-5 text-center container">
+    <div class="row py-lg-5">
+      <div class="col-lg-6 col-md-8 mx-auto">
+        <h1 class="fw-light">@Model.Name</h1>
+        <p class="lead text-muted">@Model.Description</p>
+      </div>
+    </div>
+  </section>
+
+<div>
+    <div class="grid" style="margin-top:20px;">
+        @foreach (var el in photos)
+        {
+            <div class="grid-item">
+                <a asp-action="Details" asp-controller="Photo" asp-route-id="@el.Id"> 
+                <img src="~/upload/photos/@el.Name" />
+                </a>
+            </div>
+        }
+        <div class="grid-sizer"></div>
+    </div>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<style>
+    .grid {
+        background: #FFF;
+    }
+
+        /* clear fix */
+        .grid:after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+
+    /* ---- .grid-item ---- */
+    .grid-item {
+        padding-right: 2.5px;
+        padding-left: 2.5px;
+    }
+
+    .grid-sizer,
+    .grid-item {
+        width: 33.333%;
+    }
+    /* @@media only screen and (max-width: 600px)
+                                                    {
+                                                        .grid-size,
+                                                        .grid-item {
+                                                            width:50%;
+                                                        }
+                                                    }*/
+
+
+
+
+    .grid-item {
+        float: left;
+    }
+
+        .grid-item img {
+            display: block;
+            width: 100%;
+        }
+
+        .card{
+            border: 2px solid #7E57C2;
+            border-radius: 15px;
+            padding: 5px;
+            background-color: #FAFAFA;
+        }
+</style>
+
+@section Scripts {
+    <script type="text/javascript">
+        var $grid = $('.grid').imagesLoaded(function() {
+
+            let msnry = $grid.masonry({
+
+                //gutter: '.gutter-sizer',
+                itemSelector: '.grid-item',
+                percentPosition: true,
+                columnWidth: '.grid-sizer'
+            });
+    </script>
+}

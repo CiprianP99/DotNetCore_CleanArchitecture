@@ -1,7 +1,7 @@
 ﻿namespace CoreClean.Web.ViewModels
 {
-    public class UserViewModel
+    public class UserViewModel: INotificationEntity
     {
-        string FirstName { get; set; } 
+        public string FirstName { get; set; } 
     }
 }

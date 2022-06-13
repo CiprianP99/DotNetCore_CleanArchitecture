@@ -19,6 +19,7 @@ namespace CoreClean.Infra.Data.Ioc
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IFollowRepository, FollowRepository>();
             services.AddTransient<ITagRepository, TagRepository>();
+            services.AddTransient<INotificationRepository, NotificationRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             return services;
         }

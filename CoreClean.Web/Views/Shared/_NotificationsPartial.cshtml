@@ -1,0 +1,69 @@
+@using CoreClean.Domain.Enums
+@using CoreClean.Web.Utilities
+@model List<NotificationViewModel>
+
+<input type="hidden" id="notification-count-server" value="@ViewBag.NotificationCount" />
+@foreach (var notification in Model)
+{
+    var entity = notification.Entity;
+    if (entity == null) {
+        <div class="notifications-item">
+            <div class="text">
+                <p class="h5 text-danger">Notification has invalid entity attached</p>
+                <small class="text-muted notification-time">@TimeHelper.TimeAgo(notification.Date)</small>
+            </div>
+        </div>
+        continue;
+    }
+    switch (notification.Type)
+    {
+        case EntityType.Comment:
+            var comment = entity as CommentViewModel;
+            <div class="notifications-item">
+                <div class="text">
+                    <p class="h5 text-dark">User @(comment.User.FirstName) commented on one of your <a asp-action="Details" asp-controller="Photo" asp-route-id="@comment.PhotoId">photos</a></p>
+                    <small class="text-muted notification-time">@TimeHelper.TimeAgo(notification.Date)</small>
+                </div>
+            </div>
+            break;
+        case EntityType.Follow:
+            var follow = entity as UserViewModel;
+            <div class="notifications-item">
+                <div class="text">
+                    <p class="h5 text-dark">User @(follow.FirstName) followed you!</p>
+                    <small class="text-muted notification-time">@TimeHelper.TimeAgo(notification.Date)</small>
+                </div>
+            </div>
+            break;
+
+        case EntityType.Like:
+            var like = entity as PhotoViewModel;
+            <div class="notifications-item">
+                <div class="text">
+                    <p class="h5 text-dark">Someone has liked your <a asp-action="Details" asp-controller="Photo" asp-route-id="@like.Id">photo</a></p>
+                    <small class="text-muted notification-time">@TimeHelper.TimeAgo(notification.Date)</small>
+                </div>
+            </div>
+            break;
+             case EntityType.Photo:
+            var photo = entity as PhotoViewModel;
+            <div class="notifications-item">
+                <div class="text">
+                    <p class="h5 text-dark">@(photo.User.FirstName) added a new <a asp-action="Details" asp-controller="Photo" asp-route-id="@photo.Id">photo</a></p>
+                    <small class="text-muted notification-time">@TimeHelper.TimeAgo(notification.Date)</small>
+                </div>
+            </div>
+            break;
+
+        default:
+            <div class="notifications-item">
+                <div class="text">
+                    <p class="h5 text-danger text-danger">Notification type '@(notification.Type.ToString())' is not recognized</p>
+                    <small class="text-muted notification-time">@TimeHelper.TimeAgo(notification.Date)</small>
+                </div>
+            </div>
+            break;
+
+    }
+
+}

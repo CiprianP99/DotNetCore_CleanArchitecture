@@ -4,58 +4,72 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
 
-<h4>Album</h4>
-<hr />
+
 <div class="row">
     <div class="col-sm-10 mx-auto">
         <div class="card regCard">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            @* <div>
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                @* <div>
 
-            <div class="row">
-            @foreach (var photo in @ViewBag.PhotosId)
-            {
-            <div class="col-md-3">
-            <div class="custom-control custom-checkbox image-checkbox">
-            <input class="custom-control-input" type="checkbox" value="@photo.Id" id="@photo.Id">
-            <label class="custom-control-input" for="@photo.Id"><img src="~/upload/photos/@photo.Name" class="img-fluid" /></label>
-            </div>
-            </div>
-            }
-
-            </div>
-            </div>*@
-            <div class="row">
-                @foreach(var photo in @ViewBag.PhotosId)
+                <div class="row">
+                @foreach (var photo in @ViewBag.PhotosId)
                 {
-                <div class="col-md-3 text-center">
-                    <label class="image-checkbox" title="England">
-                        <img src="~/upload/photos/@photo.Name" class="img-fluid" />
-                        <input type="checkbox" name="Photos" value="@photo.Id" />
-                    </label>
+                <div class="col-md-3">
+                <div class="custom-control custom-checkbox image-checkbox">
+                <input class="custom-control-input" type="checkbox" value="@photo.Id" id="@photo.Id">
+                <label class="custom-control-input" for="@photo.Id"><img src="~/upload/photos/@photo.Name" class="img-fluid" /></label>
+                </div>
                 </div>
                 }
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
 
+                </div>
+                </div>*@
+                <hr />
+                <h3>Add photos to album</h3>
+               @* <div class="row">
+                    @foreach (var photo in @ViewBag.PhotosId)
+                    {
+                        <div class="col-md-3 text-center">
+                            <label class="image-checkbox" title="England">
+                                <img src="~/upload/photos/@photo.Name" class="img-fluid" />
+                                <input type="checkbox" name="Photos" value="@photo.Id" />
+                            </label>
+                        </div>
+                    }
+                </div>*@
+
+                <div class="grid">
+                    @foreach (var photo in @ViewBag.PhotosId)
+                    {
+                        <div class="grid-item">
+                            <label class="image-checkbox">
+                                <img src="~/upload/photos/@photo.Name" class="img-fluid" />
+                                <input type="checkbox" name="Photos" value="@photo.Id" />
+                            </label>
+                        </div>
+
+                    }
+
+                </div>
+                <div class="form-group justify-content-center" style="text-align:center">
+                    <input type="submit" value="Create" class="btn btn-primary" style="margin:auto; width:40%;" />
+                </div>
+            </form>
+
+        </div>
     </div>
-</div>
 </div>
 <div>
     <a asp-action="Index">Back to List</a>
@@ -67,7 +81,7 @@
         -moz-box-sizing: border-box;
         -webkit-box-sizing: border-box;
         border: 8px solid transparent;
-        border-radius:8px;
+        border-radius: 8px;
         outline: 0;
     }
 
@@ -78,37 +92,91 @@
     .image-checkbox-checked {
         border-color: #9B59B6;
     }
+
+     .grid {
+            background: #FFF;
+        }
+
+            /* clear fix */
+            .grid:after {
+                content: '';
+                display: block;
+                clear: both;
+            }
+
+        /* ---- .grid-item ---- */
+        .grid-item {
+            padding-right: 2.5px;
+            padding-left: 2.5px;
+        }
+
+        .grid-sizer,
+        .grid-item {
+            width: 33.333%;
+        }
+        /* @@media only screen and (max-width: 600px)
+                                                {
+                                                    .grid-size,
+                                                    .grid-item {
+                                                        width:50%;
+                                                    }
+                                                }*/
+
+
+
+
+        .grid-item {
+            float: left;
+        }
+
+            .grid-item img {
+                display: block;
+                width: 100%;
+            }
 </style>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    <script type="text/javascript">
-        jQuery(function($) {
-            // init the state from the input
-            $(".image-checkbox").each(function() {
-                if ($(this).find('input[type="checkbox"]').first().attr("checked")) {
-                    $(this).addClass('image-checkbox-checked');
-                }
-                else {
-                    $(this).removeClass('image-checkbox-checked');
-                }
-            });
+        <script type="text/javascript">
+        var $grid = $('.grid').imagesLoaded(function() {
 
-            // sync the state to the input
-            $(".image-checkbox").on("click", function(e) {
-                if ($(this).hasClass('image-checkbox-checked')) {
-                    $(this).removeClass('image-checkbox-checked');
-                    $(this).find('input[type="checkbox"]').first().removeAttr("checked");
-                }
-                else {
-                    $(this).addClass('image-checkbox-checked');
-                    $(this).find('input[type="checkbox"]').first().attr("checked", "checked");
-                }
+                let msnry = $grid.masonry({
 
-                e.preventDefault();
+                    //gutter: '.gutter-sizer',
+                    itemSelector: '.grid-item',
+                    percentPosition: true,
+                    columnWidth: '.grid-sizer'
+                });
+        </script>
+
+        <script type="text/javascript">
+            jQuery(function($) {
+                // init the state from the input
+                $(".image-checkbox").each(function() {
+                    if ($(this).find('input[type="checkbox"]').first().attr("checked")) {
+                        $(this).addClass('image-checkbox-checked');
+                    }
+                    else {
+                        $(this).removeClass('image-checkbox-checked');
+                    }
+                });
+
+                // sync the state to the input
+                $(".image-checkbox").on("click", function(e) {
+                    if ($(this).hasClass('image-checkbox-checked')) {
+                        $(this).removeClass('image-checkbox-checked');
+                        $(this).find('input[type="checkbox"]').first().removeAttr("checked");
+                    }
+                    else {
+                        $(this).addClass('image-checkbox-checked');
+                        $(this).find('input[type="checkbox"]').first().attr("checked", "checked");
+                    }
+
+                    e.preventDefault();
+                });
             });
-        });
-    </script>
+            
+        </script>
     }
     }

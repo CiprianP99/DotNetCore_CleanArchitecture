@@ -18,7 +18,8 @@ namespace CoreClean.Web.Helpers
             CreateMap<AlbumCreationViewModel, Album>().ReverseMap();
             CreateMap<TagViewModel, Tag>().ReverseMap();
             CreateMap<UserViewModel, User>().ReverseMap();
-
+            CreateMap<NotificationViewModel, Notification>().ReverseMap();
+            CreateMap<CommentViewModel, Comment>().ReverseMap();
             }
         }
 }

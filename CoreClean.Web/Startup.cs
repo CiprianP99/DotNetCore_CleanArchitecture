@@ -50,6 +50,7 @@ namespace CoreClean.Web
             services.Add(new ServiceDescriptor(typeof(IAlbumService), typeof(AlbumService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(IFollowService), typeof(FollowService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(ITagService), typeof(TagService), ServiceLifetime.Transient));
+            services.Add(new ServiceDescriptor(typeof(INotificationService), typeof(NotificationService), ServiceLifetime.Transient));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddSignalR();

@@ -19,10 +19,10 @@ namespace CoreClean.Web.Controllers
         }
 
         //GET: UserController/ViewProfile
-        public IActionResult ViewProfile()
+        public IActionResult ViewProfile(Guid id)
         {
             var userID = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            User user = _userService.Get(userID);
+            User user = _userService.Get(id);
             var followers = user.Followee;
             var followerIds = new List<SelectListItem>();
             foreach (var el in followers)

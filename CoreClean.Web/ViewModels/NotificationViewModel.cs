@@ -1,14 +1,12 @@
-﻿using CoreClean.Domain.Enums;
+using CoreClean.Domain.Enums;
+using CoreClean.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CoreClean.Domain.Models
+namespace CoreClean.Web.ViewModels
 {
-    public class Notification
+    public class NotificationViewModel
     {
         public Guid Id { get; set; }
         public EntityType Type {get; set; }
@@ -16,8 +14,9 @@ namespace CoreClean.Domain.Models
         public Guid EntityId { get; set; }
         public bool IsRead { get; set; }
 
-        [ForeignKey("User")]
         public Guid UserId { get; set; }
-        public virtual User User { get; set; }
+        public UserViewModel User { get; set; }
+
+        public INotificationEntity Entity { get; set; }
     }
 }

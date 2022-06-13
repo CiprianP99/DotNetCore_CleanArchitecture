@@ -15,14 +15,13 @@ namespace CoreClean.Web.ViewModels
         public string Description { get; set; }
         public Guid CategoryId { get; set; }
         public virtual Category Category { get; set; }
-        [InverseProperty("Photos")]
+
         public Guid UserId { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<Tag> Tags { get; set; }
         public virtual ICollection<Album> Albums { get; set; }
         public DateTime DatePublished { get; set; }
 
-        [InverseProperty("PhotoLikes")]
         public virtual ICollection<User> UserLikes { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<Report> Reports { get; set; }

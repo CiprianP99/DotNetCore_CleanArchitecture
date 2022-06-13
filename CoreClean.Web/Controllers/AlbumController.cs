@@ -40,9 +40,10 @@ namespace CoreClean.Web.Controllers
         }
 
         // GET: AlbumController/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(Guid id)
         {
-            return View();
+            var album = _albumService.Get(id);
+            return View(album);
         }
 
         // GET: AlbumController/Create

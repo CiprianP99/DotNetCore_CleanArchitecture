@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CoreClean.Web.ViewModels
 {
-    public class PhotoViewModel
+    public class PhotoViewModel: INotificationEntity
     {
         public Guid Id { get; set; }
         public string Format { get; set; }
