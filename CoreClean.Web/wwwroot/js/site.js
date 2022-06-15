@@ -3,10 +3,7 @@
 
 // Write your JavaScript code.
 
-$(document).ready(function() {
-    const toastElList = document.querySelectorAll('.toast')
-    const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl));
-
+function GetNotifications() {
     const isLoggedIn = $('#LoggedIn').val();
     if (isLoggedIn) {
         $.get('/Notification/GetNotificationsPartial', function(data) {
@@ -14,17 +11,33 @@ $(document).ready(function() {
                 $('#notifications-container').html(data);
                 const notificationCount = +($('#notification-count-server').val() || 0);
                 if (!notificationCount) {
-                    $('.notification-count').hide();
+                    $('.notification-count-circle').hide();
                 } else {
-                    $('.notification-count').show();
+                    $('.notification-count-circle').show();
                     $('.notification-count').text(notificationCount > 10 ? '10+' : notificationCount);
                 }
 
                 $('.notification-loader').hide();
                 $('.notification-icon').show();
-
-                $(".toast").toast("show");
             }
+        });
+    }
+}
+
+$(document).ready(function() {
+    const toastElList = document.querySelectorAll('.toast')
+    const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl));
+
+    const isLoggedIn = $('#LoggedIn').val();
+    if (isLoggedIn) {
+        GetNotifications();
+
+        setInterval(GetNotifications, 60000);
+
+        $('#clear-notifications').click(function() {
+            $.post('/Notification/MarkAllNotificationsAsRead', function() {
+                GetNotifications();
+            });
         });
     }
 });

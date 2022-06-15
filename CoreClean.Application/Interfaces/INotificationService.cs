@@ -11,7 +11,7 @@ namespace CoreClean.Application.Interfaces
     public interface INotificationService
     {
    
-        void AddLikeNotification(Guid photoId, Guid userId);
+        void AddLikeNotification(User initiator, Guid photoId, Guid userId);
         void AddFollowNotification(Guid followerId, Guid followedId);
         void AddPhotoNotification(Guid photoId, Guid userId);
         void AddCommentNotification(Guid commentId);
@@ -22,6 +22,7 @@ namespace CoreClean.Application.Interfaces
         IEnumerable<Notification> Find(Expression<Func<Notification, bool>> predicate);
         IEnumerable<Notification> GetRecentNotificationsForUser(Guid userId);
         int GetUnreadNotificationsCountForUser(Guid userId);
+        void MarkAllNotificationsAsRead(Guid userId);
 
         void Save();
 

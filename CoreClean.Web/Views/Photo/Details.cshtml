@@ -27,7 +27,7 @@
             <div class="col-sm-5 mx-auto ">
                 <p class="p-0 m-0" style="font-size:16px;font-weight:bold">Author </p>
                 <div class="inline">
-                    <a asp-action="ViewProfile" asp-controller="Profile" asp-route-id="@Model.User.Id" style="text-decoration: none; color: #9B59B6">
+                    <a class="textDec" asp-action="ViewProfile" asp-controller="Profile" asp-route-id="@Model.User.Id" style="text-decoration: none; color:#616161">
                     @Model.User.FirstName @Model.User.LastName
                     </a>
                 </div>
@@ -160,6 +160,28 @@
     <a asp-action="Index">Back to List</a>
 </div>
 <style>
+    .textDec {
+  box-shadow: inset 0 0 0 0 #54b3d6;
+  color: #54b3d6;
+  padding: 0 .25rem;
+  margin: 0 -.25rem;
+  transition: color .3s ease-in-out, box-shadow .3s ease-in-out;
+}
+.textDec:hover {
+  color: #fff !important;
+  box-shadow: inset 200px 0 0 0 #FF6F00;
+ 
+}
+
+/* Presentational styles */
+.textDec{
+  color: #54b3d6;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-decoration: none;
+}
     div.inline {
         float: left;
     }

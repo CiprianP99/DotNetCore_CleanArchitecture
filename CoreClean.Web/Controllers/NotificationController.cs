@@ -2,6 +2,7 @@
 using CoreClean.Application.Interfaces;
 using CoreClean.Domain.Enums;
 using CoreClean.Domain.Models;
+using CoreClean.Web.Utilities;
 using CoreClean.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -138,6 +139,13 @@ namespace CoreClean.Web.Controllers
             {
                 return View();
             }
+        }
+
+        [HttpPost]
+        public ActionResult MarkAllNotificationsAsRead() {
+            var user = User.GetId();
+            _notificationService.MarkAllNotificationsAsRead(user);
+            return Ok();
         }
     }
 }

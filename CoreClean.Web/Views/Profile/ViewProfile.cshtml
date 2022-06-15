@@ -3,13 +3,14 @@
 @{
     ViewData["Title"] = "ViewProfile";
     var photos = Model.Photos;
+   
 }
 
-<h2>@Html.DisplayFor(model => model.FirstName) @Html.DisplayFor(model => model.LastName)</h2>
+<h2>@Html.DisplayFor(model => model.FirstName) @Html.DisplayFor(model => model.LastName) </h2>
 <hr>
 <div class="d-flex align-items-start">
     <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-        <button class="nav-link active " id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">Details</button>
+        <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">Details</button>
         <button class="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">Photos</button>
         <button class="nav-link" id="v-pills-messages-tab" data-bs-toggle="pill" data-bs-target="#v-pills-messages" type="button" role="tab" aria-controls="v-pills-messages" aria-selected="false">Followers</button>
         <button class="nav-link" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">Following</button>
@@ -22,43 +23,74 @@
         </div>
 
         <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
-            <div class="row">
-                <div class="gal">
-                    @{
-                        foreach (var el in photos)
-                        {
-                            <img src="~/upload/photos/@el.Name" alt="hover-box-first" class="p-0" />
-                        }
 
+            <div class="grid">
+                @{
+                    foreach (var el in photos)
+                    {
+                        <div class="grid-item ">
+                            <a class="hover-box" asp-action="Details" asp-controller="Photo" asp-route-id="@el.Id">
+                                <img src="~/upload/photos/@el.Name" alt="hover-box-first" class="p-0" />
+                            </a>
+                        </div>
                     }
-                </div>
+
+                }
+                <div class="grid-sizer"></div>
             </div>
+
         </div>
         <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">
-            @foreach (var follower in Model.Follower)
-            {
-                <div class="row">
-                    @follower.Follower.FirstName @follower.Follower.LastName
-                </div>
-            }
+            <table class="table">
+                <thead>
+                    <tr>
+
+                        <th scope="col">First Name</th>
+                        <th scope="col">Last Name</th>
+                        <th scope="col">Profile</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+
+
+
+                    @foreach (var follower in Model.Follower)
+                    {
+                        <tr>
+                            <td>@follower.Follower.FirstName</td>
+                            <td>@follower.Follower.LastName</td>
+                            <td><button class="btn btn-primary btnSt"><a asp-action="ViewProfile" asp-controller="Profile" asp-route-id="@follower.Follower.Id">View Profile</a></button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
         <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
-        @foreach (var follower in Model.Followee)
-            {
-                <div class="row">
-                    @follower.Followee.FirstName @follower.Followee.LastName
-                </div>
-            }
-         
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">First Name</th>
+                        <th scope="col">Last Name</th>
+                        <th scope="col">Profile</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var follower in Model.Followee)
+                    {
+                        <tr>
+                            <td>@follower.Followee.FirstName</td>
+                            <td>@follower.Followee.LastName</td>
+                            <td><button class="btn btn-primary btnSt"><a asp-action="ViewProfile" asp-controller="Profile" asp-route-id="@follower.Followee.Id">View Profile</a></button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts{
 
@@ -66,32 +98,65 @@
         }
 
     <style>
-        .gal {
-            -webkit-column-count: 3; /* Chrome, Safari, Opera */
-            -moz-column-count: 3; /* Firefox */
-            column-count: 3;
+        .btnSt {
+            padding: 0 10px;
         }
 
-            .gal img {
+        a {
+            text-decoration: none;
+            color: white;
+        }
+
+            a:hover {
+                color: white;
+            }
+
+        .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+            color: #fff;
+            background-color: #9B59B6;
+            border-color: #1861ac;
+        }
+
+        .grid {
+            background: #FFF;
+        }
+
+            /* clear fix */
+            .grid:after {
+                content: '';
+                display: block;
+                clear: both;
+            }
+
+        /* ---- .grid-item ---- */
+        .grid-item {
+            padding-right: 5px;
+            padding-left: 5px;
+            padding-bottom: 10px;
+        }
+
+        .grid-sizer,
+        .grid-item {
+            width: 33.333%;
+        }
+        /* @@media only screen and (max-width: 600px)
+                                                                        {
+                                                                            .grid-size,
+                                                                            .grid-item {
+                                                                                width:50%;
+                                                                            }
+                                                                        }*/
+
+
+
+
+        .grid-item {
+            float: left;
+        }
+
+            .grid-item img {
+                display: block;
                 width: 100%;
-                padding: 7px 0;
             }
-
-        @@media (max-width: 500px) {
-
-            .gal {
-                -webkit-column-count: 1; /* Chrome, Safari, Opera */
-                -moz-column-count: 1; /* Firefox */
-                column-count: 1;
-            }
-        }
-
-        @@media (max-width: 900px) {
-            .gal {
-                -webkit-column-count: 2; /* Chrome, Safari, Opera */
-                -moz-column-count: 2; /* Firefox */
-                column-count: 2;
-            }
-        }
 
     </style>

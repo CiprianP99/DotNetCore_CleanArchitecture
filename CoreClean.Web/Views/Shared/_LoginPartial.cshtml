@@ -17,13 +17,14 @@
                 <div class="spinner-grow spinner-grow-sm notification-loader" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-count-circle">
                     <span class="notification-count">-</span>
                     <span class="visually-hidden">unread messages</span>
                 </span>
             </button>
             <div class="notifications" style="display: none" id="box">
-                <h2>Notifications - <span class="notification-count">-</span></h2>
+                <h2>Notifications - <span class="notification-count">0</span><button type="button" id="clear-notifications" style="display: inline-block; float: right; font-size: 8px;" class="btn btn-danger btn-sm">Clear all</button></h2>
+                
                 <div id="notifications-container">
 
                 </div>

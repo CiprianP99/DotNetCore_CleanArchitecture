@@ -16,6 +16,7 @@ namespace CoreClean.Web.ViewModels
 
         public Guid UserId { get; set; }
         public UserViewModel User { get; set; }
+        public UserViewModel? InitiatorUser { get; set; }
 
         public INotificationEntity Entity { get; set; }
     }

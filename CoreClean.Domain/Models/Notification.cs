@@ -15,6 +15,8 @@ namespace CoreClean.Domain.Models
         public DateTime Date { get; set; }
         public Guid EntityId { get; set; }
         public bool IsRead { get; set; }
+        [InverseProperty("InitiatedNotifications")]
+        public virtual User? InitiatorUser { get; set; }
 
         [ForeignKey("User")]
         public Guid UserId { get; set; }

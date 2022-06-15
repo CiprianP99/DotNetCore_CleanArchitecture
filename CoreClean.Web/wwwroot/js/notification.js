@@ -1,15 +1,36 @@
-﻿"use strict";
-var connection = new signalR.HubConnectionBuilder().withUrl("/NotificationHub").build();
-connection.on("sendToUser", (Title, Description) => {
-    var heading = document.createElement("h3");
-    heading.textContent = Title;
-    var p = document.createElement("p");
-    p.innerText = Description; var div = document.createElement("div");
-    div.appendChild(heading);
-    div.appendChild(p);
+﻿const connection = new signalR
+.HubConnectionBuilder()
+.withUrl("/notificationHub")
+.withAutomaticReconnect([0, 1000, 5000, null])
+.configureLogging(signalR.LogLevel.Debug)
+.build();
 
-    document.getElementById("articleList").appendChild(div);
+connection.on("ReceiveLikeNotification", function (user, photo) {
+    $("#liveToast .toast-body").html(`<strong>${user}</strong> liked your <a href="/Photo/Details/${photo}">photo</a>`);
+    $(".toast").toast("show");
+    GetNotifications();
 });
-connection.start().catch(function (err) {
+
+connection.on("ReceiveCommentNotification", function (user, photo) {
+    $("#liveToast .toast-body").html(`<strong>${user}</strong> commented on your <a href="/Photo/Details/${photo}">photo</a>`);
+    $(".toast").toast("show");
+    GetNotifications();
+});
+
+connection.on("ReceiveFollowNotification", function (user) {
+    $("#liveToast .toast-body").html(`<strong>${user}</strong> followed you</a>`);
+    $(".toast").toast("show");
+    GetNotifications();
+});
+
+connection.on("ReceiveNewPostNotification", function (firstName, photoId) {
+    $("#liveToast .toast-body").html(`<strong>${firstName}</strong> just uploaded a new <a href="/Photo/Details/${photoId}">photo</a>!`);
+    $(".toast").toast("show");
+    GetNotifications();
+});
+
+connection.start().then(function () {
+    console.log("Connection started");
+}).catch(function (err) {
     return console.error(err.toString());
 });

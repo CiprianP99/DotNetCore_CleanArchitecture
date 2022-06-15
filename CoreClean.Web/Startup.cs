@@ -19,6 +19,7 @@ using CoreClean.Application.Interfaces;
 using CoreClean.Application.Services;
 using Microsoft.AspNetCore.Http;
 using CoreClean.Web.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CoreClean.Web
 {
@@ -51,6 +52,7 @@ namespace CoreClean.Web
             services.Add(new ServiceDescriptor(typeof(IFollowService), typeof(FollowService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(ITagService), typeof(TagService), ServiceLifetime.Transient));
             services.Add(new ServiceDescriptor(typeof(INotificationService), typeof(NotificationService), ServiceLifetime.Transient));
+            services.AddScoped<NotificationHub>();
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddSignalR();
@@ -85,17 +87,11 @@ namespace CoreClean.Web
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<NotificationHub>("/NotificationHub");
-                    
-                    
-            });
-
-            app.UseEndpoints(endpoints =>
-            {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
+                endpoints.MapHub<NotificationHub>("/notificationHub");
             });
         }
     }

@@ -3,6 +3,7 @@ using CoreClean.Application.Interfaces;
 using CoreClean.Application.Utilities;
 using CoreClean.Domain.Abstractions;
 using CoreClean.Domain.Models;
+using CoreClean.Web.Hubs;
 //using CoreClean.Domain.Models;
 using CoreClean.Web.ViewModels;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using PagedList;
 using System;
@@ -35,12 +37,14 @@ namespace CoreClean.Web.Controllers
         private readonly ITagService _tagService;
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
+        private readonly IHubContext<NotificationHub> _hubContext;
+
         private const int PageSize = 10;
         //private readonly UserManager<User> _userManager;
 
         public PhotoController(IWebHostEnvironment hostEnvironment, IPhotoService photoService,
             ICategoryService categoryService, ICommentService commentService, IMapper mapper,
-            IFollowService followService, IUserService userService, INotificationService notificationService,ITagService tagService)
+            IFollowService followService, IUserService userService, INotificationService notificationService, ITagService tagService, IHubContext<NotificationHub> hubContext)
         {
             _hostEnvironment = hostEnvironment;
             _photoService = photoService;
@@ -49,8 +53,9 @@ namespace CoreClean.Web.Controllers
             _followService = followService;
             _userService = userService;
             _tagService = tagService;
-            _notificationService = notificationService; 
+            _notificationService = notificationService;
             _mapper = mapper;
+            _hubContext = hubContext;
         }
         // GET: PhotoController
         public ActionResult Index(string sortOrder, string search, List<Guid> catId)
@@ -82,7 +87,7 @@ namespace CoreClean.Web.Controllers
 
             return View(photos.Take(PageSize));
         }
-       
+
         private IEnumerable<Photo> FilterPhotos(IEnumerable<Photo> photos, string sortOrder, string search, List<Guid> catId)
         {
             if (search != null)
@@ -125,7 +130,7 @@ namespace CoreClean.Web.Controllers
         {
             var photos = FilterPhotos(_photoService.GetAll(), sortOrder, search, catId).Skip(page * limit).Take(limit).ToList().Select(c => _mapper.Map<PhotoViewModel>(c));
 
-            if(!photos.Any())
+            if (!photos.Any())
             {
                 return NotFound();
             }
@@ -134,8 +139,8 @@ namespace CoreClean.Web.Controllers
                         {
                             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                         }), MediaTypeNames.Application.Json);
-            
-            
+
+
         }
 
         //GET: PhotoController/FollowingIndex
@@ -227,6 +232,8 @@ namespace CoreClean.Web.Controllers
 
             var catList = _categoryService.GetAll().ToList();
             pVM.catlist = new SelectList(catList, "Id", "Name");
+
+
             return View(pVM);
         }
 
@@ -247,17 +254,26 @@ namespace CoreClean.Web.Controllers
         }
 
 
+
         public Task<HttpResponseMessage> UploadAsFormDataContent(string url, byte[] image)
         {
             MultipartFormDataContent form = new MultipartFormDataContent
                         {
-        { new ByteArrayContent(image, 0, image.Length), "photo", "pic.jpeg" }
+                            { new ByteArrayContent(image, 0, image.Length), "photo", "pic.jpeg" }
                         };
 
             HttpClient client = new HttpClient();
             return client.PostAsync(url, form);
         }
 
+        private async Task BroadcastNewPostNotification(Guid photo, Guid userId)
+        {
+            var user = _userService.Get(userId);
+            foreach(var follower in user.Follower) {
+                _hubContext.Clients.Group(follower.FollowerId.ToString()).SendAsync("ReceiveNewPostNotification", user.FirstName, photo);
+            }
+        }
+        
         // POST: PhotoController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -293,9 +309,8 @@ namespace CoreClean.Web.Controllers
                     ph.Tags.Add(newTag);
                 }
                 _photoService.Save();
-
                 _notificationService.AddPhotoNotification(ph.Id, ph.UserId);
-
+                BroadcastNewPostNotification(ph.Id, ph.UserId);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -317,7 +332,8 @@ namespace CoreClean.Web.Controllers
             _commentService.Save();
 
             _notificationService.AddCommentNotification(comment.Id);
-            
+            _ = _hubContext.Clients.Group(comment.Photo.UserId.ToString()).SendAsync("ReceiveCommentNotification", comment.User.FirstName, comment.PhotoId);
+
 
             return RedirectToAction("Details", "Photo", new { Id = comment.PhotoId });
         }
@@ -347,19 +363,23 @@ namespace CoreClean.Web.Controllers
                 newFollow.Followee = followedUser;
                 _followService.Save();
                 _notificationService.AddFollowNotification(userId, followedUserId);
+                _ = _hubContext.Clients.Group(followedUserId.ToString()).SendAsync("ReceiveFollowNotification", user.FirstName);
             }
             var id = photoS.Id;
             //Follow newFollow = new Follow();
             //return RedirectToAction("Details", "Photo", new { Id = photo.Id });
             return Ok();
         }
-
+        
+        
+        
         [HttpGet]
         public ActionResult LikePhoto(Guid photoId)
         {
             var photoS = _photoService.Find(x => x.Id == photoId).FirstOrDefault();
             var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             User user = _userService.Get(userId);
+            
 
             //if (User.Identity.IsAuthenticated && _photoService.Find(x => x.UserLikes.Contains(user)).Any())
             if (User.Identity.IsAuthenticated && photoS.UserLikes.Any(x => x.Id == userId))
@@ -372,11 +392,15 @@ namespace CoreClean.Web.Controllers
             {
                 photoS.UserLikes.Add(user);
                 _photoService.Save();
-                _notificationService.AddLikeNotification(photoId, photoS.UserId);
+                _notificationService.AddLikeNotification(user ,photoId, photoS.UserId);
+
+                _ = _hubContext.Clients.Group(photoS.UserId.ToString()).SendAsync("ReceiveLikeNotification", user.FirstName, photoId);
+               
             }
             var id = photoS.Id;
             //return RedirectToAction("Details", "Photo", new { Id = pVM.Id });
             return Ok();
+           
         }
 
         // GET: PhotoController/Edit/5

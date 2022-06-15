@@ -52,12 +52,13 @@ namespace CoreClean.Application.Services
             Save();
         }
 
-        public void AddLikeNotification(Guid photoId, Guid userId)
+        public void AddLikeNotification(User user, Guid photoId, Guid userId)
         {
             _unitOfWork.Notifications.Create(new Notification
             {
                 Type = EntityType.Like,
                 EntityId = photoId,
+                InitiatorUser = user,
                 UserId = userId,
                 IsRead = false,
                 Date = DateTime.Now
@@ -95,6 +96,14 @@ namespace CoreClean.Application.Services
             _unitOfWork.Notifications.Delete(notification);
         }
 
+        public void MarkNotificationAsRead(Guid notificationId)
+        {
+            var notification = _unitOfWork.Notifications.Get(notificationId);
+            notification.IsRead = true;
+            _unitOfWork.Notifications.Update(notification);
+            Save();
+        }
+
         public IEnumerable<Notification> Find(Expression<Func<Notification, bool>> predicate)
         {
             return _unitOfWork.Notifications.Find(predicate);
@@ -102,12 +111,24 @@ namespace CoreClean.Application.Services
 
         public IEnumerable<Notification> GetRecentNotificationsForUser(Guid userId)
         {
-            return Find(n => n.UserId == userId).OrderByDescending(u => u.Date).Take(10);
+            return Find(n => n.UserId == userId && n.IsRead == false).OrderByDescending(u => u.Date).Take(10);
         }
 
         public int GetUnreadNotificationsCountForUser(Guid userId)
         {
-            return Find(n => n.UserId == userId).Count();
+            return Find(n => n.UserId == userId && n.IsRead == false).Count();
+        }
+
+        public void MarkAllNotificationsAsRead(Guid userId)
+        {
+            var notifications = Find(n => n.UserId == userId);
+            foreach(var notification in notifications)
+            {
+                notification.IsRead = true;
+                _unitOfWork.Notifications.Update(notification);
+            }
+
+            Save();
         }
 
         public T GetNotificationEntity<T>(Guid entityId)

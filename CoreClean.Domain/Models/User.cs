@@ -13,6 +13,7 @@ namespace CoreClean.Domain.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string ProfilePicture { get; set; }
+        public virtual ICollection<Notification> InitiatedNotifications { get; set; }
         public virtual ICollection<Notification> Notifications { get; set; }
         public virtual ICollection<Report> Reports { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }
@@ -21,6 +22,7 @@ namespace CoreClean.Domain.Models
         public virtual ICollection<Album> Albums { get; set; } 
         public virtual ICollection<Follow> Follower { get; set; }
         public virtual ICollection<Follow> Followee { get; set; }
+        
 
     }
 }

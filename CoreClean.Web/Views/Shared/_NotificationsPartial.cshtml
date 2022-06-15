@@ -40,7 +40,7 @@
             var like = entity as PhotoViewModel;
             <div class="notifications-item">
                 <div class="text">
-                    <p class="h5 text-dark">Someone has liked your <a asp-action="Details" asp-controller="Photo" asp-route-id="@like.Id">photo</a></p>
+                    <p class="h5 text-dark"><a class="NoDec" asp-action="ViewProfile" asp-controller="Profile" asp-route-id="@(notification.InitiatorUser?.Id)">@(notification.InitiatorUser?.FirstName ?? "Someone") </a> has liked your <a class="NoDec" asp-action="Details" asp-controller="Photo" asp-route-id="@like.Id">photo</a></p>
                     <small class="text-muted notification-time">@TimeHelper.TimeAgo(notification.Date)</small>
                 </div>
             </div>
@@ -49,7 +49,7 @@
             var photo = entity as PhotoViewModel;
             <div class="notifications-item">
                 <div class="text">
-                    <p class="h5 text-dark">@(photo.User.FirstName) added a new <a asp-action="Details" asp-controller="Photo" asp-route-id="@photo.Id">photo</a></p>
+                    <p class="h5 text-dark">@(photo.User.FirstName) added a new <a class="NoDec" asp-action="Details" asp-controller="Photo" asp-route-id="@photo.Id">photo</a></p>
                     <small class="text-muted notification-time">@TimeHelper.TimeAgo(notification.Date)</small>
                 </div>
             </div>
@@ -63,7 +63,14 @@
                 </div>
             </div>
             break;
-
     }
-
 }
+<style>
+    .NoDec {
+    text-decoration: none;
+    color: #9B59B6;
+    }
+    .NoDec:hover{
+        color: black;
+    }
+</style>
